@@ -1,5 +1,5 @@
 import { simpleParser, type ParsedMail } from "mailparser";
-import type { ParseOptions } from "./interface";
+import type { ParseOptions } from "./src/interface";
 import type { Readable } from "stream";
 
 class EmlParser {
