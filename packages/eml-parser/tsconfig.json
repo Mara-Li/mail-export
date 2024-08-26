@@ -8,5 +8,5 @@
     "typeRoots": ["@types"],
     "esModuleInterop": true
   },
-  "include": ["./*.js"]
+  "include": ["./*.js", "../../index.js"]
 }
