@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "allowJs": true,
+    "outDir": "@types",
+    "strict": true,
+    "typeRoots": ["@types"],
+    "esModuleInterop": true
+  },
+  "include": ["./*.js"]
+}

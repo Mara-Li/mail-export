@@ -1,0 +1,8 @@
+{
+  "name": "archivette",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "eml-parser": "workspaces:*"
+  }
+}
