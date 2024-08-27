@@ -1,7 +1,29 @@
-import { simpleParser, type AddressObject, type Attachment, type EmailAddress, type ParsedMail } from "mailparser";
-import type { Header, MailAdress, ParseOptions, Parser, UpgradedFieldData } from "./interface";
+import {
+	simpleParser,
+	type AddressObject,
+	type Attachment,
+	type EmailAddress,
+	type ParsedMail,
+} from "mailparser";
+import type {
+	Header,
+	MailAdress,
+	ParseOptions,
+	Parser,
+	UpgradedFieldData,
+} from "./interface";
 import type { Readable } from "stream";
-import { attachments, cc, date, end, from, header, htmlAdress, subject, to } from "./utils";
+import {
+	attachments,
+	cc,
+	date,
+	end,
+	from,
+	header,
+	htmlAdress,
+	subject,
+	to,
+} from "./utils";
 import { ReadStream } from "fs";
 import * as pdf from "html-pdf";
 
@@ -67,7 +89,7 @@ export class EmlParser implements Parser {
 		return mails;
 	}
 
-	async getHeader(options?: ParseOptions): Promise<Header|undefined> {
+	async getHeader(options?: ParseOptions): Promise<Header | undefined> {
 		const result = await this.parse(options);
 		if (!result) return undefined;
 		const bcc = this.createAdress(result.bcc);
@@ -81,10 +103,9 @@ export class EmlParser implements Parser {
 			to,
 			date: result.date,
 		};
-
 	}
 
-	async getBodyHtml(options?: ParseOptions): Promise<string|undefined> { 
+	async getBodyHtml(options?: ParseOptions): Promise<string | undefined> {
 		const result = await this.parse(options);
 		if (!result) return undefined;
 		let replacements = {
@@ -99,10 +120,12 @@ export class EmlParser implements Parser {
 		return htmlString;
 	}
 
-	async getAsHtml(options?: ParseOptions): Promise<string|undefined> {
+	async getAsHtml(options?: ParseOptions): Promise<string | undefined> {
 		const result = await this.parse(options);
 		if (!result) throw new Error("No message found");
-		const dateMail = result.date ? new Date(result.date).toLocaleString() : new Date().toLocaleString();
+		const dateMail = result.date
+			? new Date(result.date).toLocaleString()
+			: new Date().toLocaleString();
 		let headerHtml = `${header}${from(result.from?.html)}${date(dateMail)}`;
 		if (result.to) {
 			const toAdress = this.createAdress(result.to);
@@ -120,29 +143,37 @@ export class EmlParser implements Parser {
 			headerHtml += cc(htmlBcc);
 		}
 		if (result.attachments) {
-			const attachmentsHtml = result.attachments.map((att) => {
-				return `<a href=\"data:${att.contentType};base64,${att.content.toString("base64")}\" download=\"${att.filename}\">${att.filename}</a>`;
-			}).join("<br>");
+			const attachmentsHtml = result.attachments
+				.map((att) => {
+					return `<a href=\"data:${att.contentType};base64,${att.content.toString("base64")}\" download=\"${att.filename}\">${att.filename}</a>`;
+				})
+				.join("<br>");
 			headerHtml += attachments(attachmentsHtml);
 		}
 		if (result.subject) headerHtml += subject(result.subject);
 		const bodyHtml = await this.getBodyHtml(options);
 		if (bodyHtml) headerHtml += end + `<p>${bodyHtml}</p>`;
-		return headerHtml
+		return headerHtml;
 	}
 
-	async convertToStream(type?: "png" | "jpeg" | "pdf", orientation?: "portrait" | "landscape", format?: "A3" | "A4" | "A5" | "Legal" | "Letter" | "Tabloid", options?: ParseOptions): Promise<ReadStream> {
+	async convertToStream(
+		type?: "png" | "jpeg" | "pdf",
+		orientation?: "portrait" | "landscape",
+		format?: "A3" | "A4" | "A5" | "Legal" | "Letter" | "Tabloid",
+		options?: ParseOptions,
+	): Promise<ReadStream> {
 		try {
 			const html = await this.getAsHtml(options);
 			if (!html) throw new Error("No message found");
 			return await new Promise<ReadStream>((resolve, reject) => {
-				pdf.create(html, { format, orientation, type }).toStream((err, stream) => {
-					if (err) reject(err);
-					resolve(stream);
-				});
+				pdf
+					.create(html, { format, orientation, type })
+					.toStream((err, stream) => {
+						if (err) reject(err);
+						resolve(stream);
+					});
 			});
-		}
-		catch (error) {
+		} catch (error) {
 			throw error;
 		}
 	}

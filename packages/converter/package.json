@@ -2,5 +2,7 @@
 	"name": "converter",
 	"module": "index.ts",
 	"type": "module",
-	"dependencies": {}
+	"dependencies": {
+		"mail-export": "workspace:*"
+	}
 }

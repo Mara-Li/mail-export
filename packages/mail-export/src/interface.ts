@@ -30,10 +30,18 @@ export interface Header {
 export interface Parser {
 	fileReadStream: Readable;
 	parsedMail: UpgradedFieldData | ParsedMail;
-	parse(options?: ParseOptions): Promise<UpgradedFieldData|ParsedMail|undefined>;
-	getHeader(options?:ParseOptions): Promise<Header|undefined>;
-	getAttachments(options?: ParseOptions): Promise<UpgradedFieldData[]|Attachment[]>;
-	convertToStream(type?: "png" | "jpeg" | "pdf", orientation?: "portrait" | "landscape", format?: "A3" | "A4" | "A5" | "Legal" | "Letter" | "Tabloid", options?: ParseOptions): Promise<ReadStream>;
+	parse(
+		options?: ParseOptions,
+	): Promise<UpgradedFieldData | ParsedMail | undefined>;
+	getHeader(options?: ParseOptions): Promise<Header | undefined>;
+	getAttachments(
+		options?: ParseOptions,
+	): Promise<UpgradedFieldData[] | Attachment[]>;
+	convertToStream(
+		type?: "png" | "jpeg" | "pdf",
+		orientation?: "portrait" | "landscape",
+		format?: "A3" | "A4" | "A5" | "Legal" | "Letter" | "Tabloid",
+		options?: ParseOptions,
+	): Promise<ReadStream>;
 	_createAdress?(adress?: AddressObject | AddressObject[]): MailAdress[];
 }
-
