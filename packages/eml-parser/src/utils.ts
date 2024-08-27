@@ -1,4 +1,5 @@
 import type { Readable } from "stream";
+import type { MailAdress, ParseOptions } from "./interface";
 
 export async function stream2Buffer(stream: Readable): Promise<any> {
 	return new Promise((resolve, reject) => {
@@ -30,7 +31,8 @@ export const attachments = function (attachments:string) {
 	return `<tr><td class="label">Attachments:</td><td>${attachments}</td></tr>`;
 };
 
-export const from = function (from:string) {
+export const from = function (from?:string) {
+    if (!from) return "";
 	return `<div class="header">${from}</div><div class="underline"></div><table class="email-info">`;
 };
 
@@ -82,3 +84,11 @@ export const header = `<head>
         }
     </style>
 </head>`;
+export function htmlAdress(adress?: MailAdress[]) {
+		if (!adress) return '';
+		let html = '';
+		adress.forEach(adress => {
+			html += `<a href=\"mailto:${adress.address}\" class=\"mp_address_email\">${adress.name}</a>` + ';';
+		});
+		return html;
+	}

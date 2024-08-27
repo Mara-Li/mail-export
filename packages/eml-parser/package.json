@@ -1,8 +1,10 @@
 {
-	"name": "emlparser",
-	"description": "Parse .eml and .msg files or convert to pdf, html, jpeg or png format. Extract headers and attachments from .eml and msg files.",
-	"dependencies": {},
-	"main": "index.js",
-	"type": "module",
-	"types": "@types/index.d.ts"
+  "name": "emlparser",
+  "description": "Parse .eml and .msg files or convert to pdf, html, jpeg or png format. Extract headers and attachments from .eml and msg files.",
+  "dependencies": {},
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  }
 }

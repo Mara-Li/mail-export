@@ -1,12 +1,9 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "allowJs": true,
-    "outDir": "@types",
-    "strict": true,
-    "typeRoots": ["@types"],
-    "esModuleInterop": true
+    "baseUrl": "./",
+    "target": "ESNext",
+    "outDir": "dist/"
   },
-  "include": ["./*.js", "../../index.js"]
+  "include": ["**/*.ts"]
 }

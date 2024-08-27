@@ -1,22 +1,17 @@
-import { simpleParser, type ParsedMail } from 'mailparser';
 import * as pdf from "html-pdf";
 import MsgReader, { type FieldsData } from "@kenjiuno/msgreader";
 import { decompressRTF } from "@kenjiuno/decompressrtf";
 import * as iconv from 'iconv-lite';
 import * as rtfParser from "rtf-stream-parser";
-import { header, from, end, attachments, to, date, bcc, cc, subject } from './src/utils';
+import { header, from, end, attachments, to, date, bcc, cc, htmlAdress } from './utils';
 import { Readable } from 'stream';
-import type { ParseOptions } from './src/interface';
-import { stream2Buffer } from './src/utils';
-import type { CreateResult } from 'html-pdf';
+import type {ParseOptions, Parser, UpgradedFieldData } from './interface';
+import { stream2Buffer } from './utils';
 import type { ReadStream } from 'fs';
 
-export interface UpgradedFieldData extends FieldsData {
-	content?: Uint8Array;
-	htmlString?: string;
-}
 
-export class MessageParser {
+
+export class MessageParser implements Parser {
 	fileReadStream: Readable;
 	//@ts-ignore
 	parsedMail: UpgradedFieldData;
@@ -26,7 +21,7 @@ export class MessageParser {
 
 	
 
-	async parseMessage(options?: ParseOptions) {
+	async parse(options?: ParseOptions) {
 		let buffer = await stream2Buffer(this.fileReadStream);
 		let emailData = new MsgReader(buffer);
 		this.parsedMail = emailData.getFileData();
@@ -50,8 +45,8 @@ export class MessageParser {
 		return this.parsedMail;
 	}
 
-	async getMessageHeaders() {
-		const result = await this.parseMessage();
+	async getHeader(options?: ParseOptions) {
+		const result = await this.parse(options);
 		const header = {
 			subject: result.subject,
 			from: [{
@@ -81,13 +76,15 @@ export class MessageParser {
 		return header;
 	}
 
-	async getMessageBodyHtml(options?: ParseOptions) {
-		const result = await this.parseMessage(options);
+	async getBodyHtml(options?: ParseOptions) {
+		const result = await this.parse(options);
 		return result.htmlString;
 	}
 
-	async getMessageAsHtml(options?: ParseOptions) {
-		const result = await this.parseMessage(options);
+	
+
+	async getAsHtml(options?: ParseOptions) {
+		const result = await this.parse(options);
 		if (!result) throw new Error('No message found');
 		const bccRecipients = result.recipients?.filter(recipient => recipient.recipType === 'bcc').map(recipient => { return { name: recipient.name, address: recipient.email }; });
 		let toRecipients = result.recipients?.filter(recipient => recipient.recipType === 'to').map(recipient => { return { name: recipient.name, address: recipient.email }; });
@@ -95,15 +92,10 @@ export class MessageParser {
 		let toHtml = '';
 		let ccHtml = '';
 		let bccHtml = '';
-		toRecipients?.forEach(recipient => {
-			toHtml += `<a href=\"mailto:${recipient.address}\" class=\"mp_address_email\">${recipient.address}</a>` + ';';
-		});
-		bccRecipients?.forEach(recipient => {
-			bccHtml += `<a href=\"mailto:${recipient.address}\" class=\"mp_address_email\">${recipient.address}</a>` + ';';
-		});
-		ccRecipients?.forEach(recipient => {
-			ccHtml += `<a href=\"mailto:${recipient.address}\" class=\"mp_address_email\">${recipient.address}</a>` + ';';
-		});
+		toHtml = htmlAdress(toRecipients);
+		bccHtml = htmlAdress(bccRecipients);
+		ccHtml = htmlAdress(ccRecipients);
+		
 		const fromSpan = `<a href=\"mailto:${result.senderEmail ?? result.lastModifierName}\" class=\"mp_address_email\">${result.senderEmail ?? result.lastModifierName}</a></span>`;
 		const dateSpan = result.messageDeliveryTime ? `${new Date(result.messageDeliveryTime).toLocaleString()}` : "";
 		let headerHtml = `${header}${from(fromSpan)}${date(dateSpan)}`;
@@ -129,9 +121,9 @@ export class MessageParser {
 		return headerHtml;
 	}
 
-	async convertMessageToStream(type?: "png" | "jpeg" | "pdf", orientation: "portrait" | "landscape" = "landscape", format?: "A3" | "A4" | "A5" | "Legal" | "Letter" | "Tabloid", options?: ParseOptions) {
+	async convertToStream(type?: "png" | "jpeg" | "pdf", orientation: "portrait" | "landscape" = "landscape", format?: "A3" | "A4" | "A5" | "Legal" | "Letter" | "Tabloid", options?: ParseOptions) {
 		try {
-			const html = await this.getMessageAsHtml(options);
+			const html = await this.getAsHtml(options);
 			return await new Promise<ReadStream>((resolve, reject) => {
 			  pdf.create(html, {type, format, orientation}).toStream((err, res) => {
 				if (err) {
@@ -146,8 +138,8 @@ export class MessageParser {
 		  }
 	}
 
-	async getMessageAttachments(options?: ParseOptions) {
-		const result = await this.parseMessage(options);
+	async getAttachments(options?: ParseOptions) {
+		const result = await this.parse(options);
 		return result.attachments as UpgradedFieldData[];
 	}
 }
