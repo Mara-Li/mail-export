@@ -3,7 +3,7 @@ import { normalize } from "node:path";
 import { PDFDocument } from "pdf-lib";
 import { MessageParser, Convert } from "mail-export";
 
-const filePath = normalize("test_SA.msg");
+const filePath = normalize("tests/inputs/test_SA.msg");
 const email = createReadStream(filePath);
 const emailParser = new MessageParser(email);
 
@@ -13,13 +13,14 @@ async function createAttachment() {
 	for (const attachment of attachments) {
 		//convert to file with attachment.content as Uint8Array
 		if (!attachment || !attachment.content || !attachment.fileName) continue;
-		if (attachment.extension === ".pdf") {
+		console.log(attachment.extension);
+		/* if (attachment.extension === ".pdf") {
 			const pdfDoc = await PDFDocument.load(attachment.content);
 			const pdfBytes = await pdfDoc.save();
 			writeFileSync(attachment.fileName, pdfBytes);
-		} else {
-			writeFileSync(attachment.fileName, attachment.content);
-		}
+		} else { */
+		writeFileSync(attachment.fileName, attachment.content);
+		//}
 	}
 }
 

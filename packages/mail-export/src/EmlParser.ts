@@ -156,8 +156,8 @@ export class EmlParser implements Parser {
 		if (result.attachments && !exclude?.attachments) {
 			const attachmentsFiles = exclude?.embeddedAttachments
 				? result.attachments.filter(
-					(att) => att.contentDisposition === "attachment",
-				)
+						(att) => att.contentDisposition === "attachment",
+					)
 				: result.attachments;
 			const attachmentsHtml = attachmentsFiles
 				.map((att) => {

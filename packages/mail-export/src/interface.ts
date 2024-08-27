@@ -48,6 +48,7 @@ type ExcludeHeader = {
 export interface MessageFieldData extends FieldsData {
 	content?: Uint8Array;
 	htmlString?: string;
+	filename?: string;
 }
 
 /**

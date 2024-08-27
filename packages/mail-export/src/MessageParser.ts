@@ -43,6 +43,7 @@ export class MessageParser implements Parser {
 			emailFieldsData.attachments as MessageFieldData[]
 		)?.map((att) => {
 			att.content = emailData.getAttachment(att).content;
+			att.filename = emailData.getAttachment(att).fileName;
 			return att;
 		});
 		emailFieldsData.htmlString = rtfParser

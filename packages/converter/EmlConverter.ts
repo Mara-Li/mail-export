@@ -1,9 +1,8 @@
 import { createReadStream, createWriteStream, writeFileSync } from "node:fs";
 import { normalize } from "node:path";
-import { PDFDocument } from "pdf-lib";
 import { EmlParser, Convert } from "mail-export";
 
-const filePath = normalize("test_SA_3.eml");
+const filePath = normalize("tests/inputs/test_SA.eml");
 const email = createReadStream(filePath);
 const emailParser = new EmlParser(email);
 
@@ -15,13 +14,8 @@ async function createAttachment() {
 	for (const attachment of attachments) {
 		//convert to file with attachment.content as Uint8Array
 		if (!attachment || !attachment.content || !attachment.filename) continue;
-		if (attachment.contentType === ".pdf") {
-			const pdfDoc = await PDFDocument.load(attachment.content);
-			const pdfBytes = await pdfDoc.save();
-			writeFileSync(attachment.filename, pdfBytes);
-		} else {
-			writeFileSync(attachment.filename, attachment.content);
-		}
+		console.log(attachment.contentType);
+		writeFileSync(attachment.filename, attachment.content);
 	}
 }
 
