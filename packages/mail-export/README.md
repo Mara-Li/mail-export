@@ -11,10 +11,6 @@ Support typescript and javascript.
 npm install mail-export
 ```
 
-> [!Note]
-> It is possible that you need additional dependencies to use the library.
-> For example, pdf-lib is used to convert the email to pdf.
-
 # Example Usage
 ## Convert to PDF
 

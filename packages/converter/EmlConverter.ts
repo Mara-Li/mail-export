@@ -20,7 +20,9 @@ async function createAttachment() {
 }
 
 async function createPdf() {
-	const html = await emailParser.getAsHtml({ excludeHeader: { embeddedAttachments: true } });
+	const html = await emailParser.getAsHtml({
+		excludeHeader: { embeddedAttachments: true },
+	});
 	if (!html) throw new Error("No message found");
 	writeFileSync("test_SA.html", html);
 	const converter = new Convert(html);
