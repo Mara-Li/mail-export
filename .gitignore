@@ -3,3 +3,4 @@ dist/**
 **/dist/**
 **/packages/mail-export/dist/**
 tests/inputs/**
+**/node_modules/**
