@@ -10,7 +10,7 @@ import type {
 	MailAdress,
 	ParseOptions,
 	Parser,
-	UpgradedFieldData,
+	MessageFieldData,
 } from "./interface";
 import type { Readable } from "stream";
 import {
@@ -97,6 +97,7 @@ export class EmlParser implements Parser {
 		const cc = this.createAdress(result.cc);
 		const to = this.createAdress(result.to);
 		const replyTo = this.createAdress(result.replyTo);
+		const attachments = await this.getAttachments(options);
 		return {
 			subject: result.subject,
 			from: result.from?.value,
@@ -105,6 +106,7 @@ export class EmlParser implements Parser {
 			to,
 			date: result.date,
 			replyTo,
+			attachments,
 		} as Header;
 	}
 
@@ -154,8 +156,8 @@ export class EmlParser implements Parser {
 		if (result.attachments && !exclude?.attachments) {
 			const attachmentsFiles = exclude?.embeddedAttachments
 				? result.attachments.filter(
-						(att) => att.contentDisposition === "attachment",
-					)
+					(att) => att.contentDisposition === "attachment",
+				)
 				: result.attachments;
 			const attachmentsHtml = attachmentsFiles
 				.map((att) => {
@@ -184,6 +186,11 @@ export class EmlParser implements Parser {
 		);
 	}
 
+	/**
+	 * Allow to get only the embedded attachments of a eml file
+	 * @param options {ParseOptions} - Options to modify the parsing behavior
+	 * @returns {Promise<Attachment[]>} - The embedded attachments
+	 */
 	async getEmbedded(options?: ParseOptions): Promise<Attachment[]> {
 		const result = await this.parse(options);
 		if (!result) return [];

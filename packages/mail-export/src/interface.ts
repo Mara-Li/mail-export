@@ -17,6 +17,9 @@ export interface ParseOptions {
 	 * The hightlight detection will be case sensitive
 	 */
 	highlightCaseSensitive?: boolean;
+	/**
+	 * Allow to modify the header of the result pdf/html
+	 */
 	excludeHeader?: Partial<ExcludeHeader>;
 }
 
@@ -34,11 +37,15 @@ type ExcludeHeader = {
 	replyTo: boolean;
 	/** Will ignore **all** attachments */
 	attachments: boolean;
-	/** Wil ignore only embedded attachments */
+	/** Wil ignore only embedded attachments ; Only exist for eml files*/
 	embeddedAttachments: boolean;
 };
 
-export interface UpgradedFieldData extends FieldsData {
+/**
+ * An upgraded version of the FieldsData from msgreader
+ * Only used for the msg format
+ */
+export interface MessageFieldData extends FieldsData {
 	content?: Uint8Array;
 	htmlString?: string;
 }
@@ -65,19 +72,44 @@ export interface Header {
 	 */
 	replyTo?: MailAdress[];
 	date?: string | Date;
+	attachments?: Attachment[] | MessageFieldData[];
 }
 
 export interface Parser {
 	fileReadStream: Readable;
-	parsedMail: UpgradedFieldData | ParsedMail;
+	parsedMail: MessageFieldData | ParsedMail;
+	/**
+	 * Primary function, allow to convert the readable into a parsed Mail to allow extracting the content, header...
+	 * @note If there already a parsedMail, it will return it directly without re-parsing the file
+	 * @param options {ParseOptions} - Options to modify the parsing behavior
+	 */
 	parse(
 		options?: ParseOptions,
-	): Promise<UpgradedFieldData | ParsedMail | undefined>;
+	): Promise<MessageFieldData | ParsedMail | undefined>;
+	/**
+	 * Parse the header of the mail, including attachments
+	 * @param options {ParseOptions} - Options to modify the parsing behavior
+	 * @returns {Header} - Header of the mail
+	 */
 	getHeader(options?: ParseOptions): Promise<Header | undefined>;
+	/**
+	 * Get the attachments and their contents
+	 * @param options {ParseOptions} - Options to modify the parsing behavior
+	 */
 	getAttachments(
 		options?: ParseOptions,
-	): Promise<UpgradedFieldData[] | Attachment[]>;
-
+	): Promise<MessageFieldData[] | Attachment[]>;
+	/**
+	 * Return the content of the mail as a html string, including header and attachments as field in the html
+	 * Attachment can be download if the html is directly written in a file
+	 * @param {ParseOptions} options  - Options to modify the parsing behavior
+	 * @returns {string} - The mail as a html string
+	 */
 	getAsHtml(options?: ParseOptions): Promise<string | undefined>;
+	/**
+	 * Only return the body of the mail, without formatting the header fields
+	 * @param options {ParseOptions} - Options to modify the parsing behavior
+	 * @returns {string} - The body of the mail as a html string
+	 */
 	getBodyHtml(options?: ParseOptions): Promise<string | undefined>;
 }

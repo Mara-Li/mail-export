@@ -19,14 +19,14 @@ import type {
 	Header,
 	ParseOptions,
 	Parser,
-	UpgradedFieldData,
+	MessageFieldData,
 } from "./interface";
 import { stream2Buffer } from "./utils";
 
 export class MessageParser implements Parser {
 	fileReadStream: Readable;
 	//@ts-ignore
-	parsedMail: UpgradedFieldData;
+	parsedMail: MessageFieldData;
 	constructor(fileReadStream: Readable) {
 		this.fileReadStream = fileReadStream;
 	}
@@ -35,12 +35,12 @@ export class MessageParser implements Parser {
 		if (this.parsedMail) return this.parsedMail;
 		let buffer = await stream2Buffer(this.fileReadStream);
 		let emailData = new MsgReader(buffer);
-		const emailFieldsData = emailData.getFileData() as UpgradedFieldData;
+		const emailFieldsData = emailData.getFileData() as MessageFieldData;
 		//@ts-ignore
 		let outputArray = decompressRTF(emailFieldsData.compressedRtf);
 		let decompressedRtf = Buffer.from(outputArray).toString("ascii");
 		emailFieldsData.attachments = (
-			emailFieldsData.attachments as UpgradedFieldData[]
+			emailFieldsData.attachments as MessageFieldData[]
 		)?.map((att) => {
 			att.content = emailData.getAttachment(att).content;
 			return att;
@@ -104,6 +104,7 @@ export class MessageParser implements Parser {
 					};
 				}),
 			date: result.messageDeliveryTime,
+			attachments: result.attachments as MessageFieldData[],
 		};
 		return header;
 	}
@@ -158,7 +159,7 @@ export class MessageParser implements Parser {
 		}
 
 		if (result.attachments && !exclude?.attachments) {
-			const attachmentsHtml = (result.attachments as UpgradedFieldData[])
+			const attachmentsHtml = (result.attachments as MessageFieldData[])
 				.map(
 					(att) =>
 						`<a href=\"data:${att.content};base64,${att.content!.toString()}\" download=\"${att.fileName}\">${att.fileName}</a>`,
@@ -171,6 +172,6 @@ export class MessageParser implements Parser {
 	}
 	async getAttachments(options?: ParseOptions) {
 		const result = await this.parse(options);
-		return result.attachments as UpgradedFieldData[];
+		return result.attachments as MessageFieldData[];
 	}
 }
