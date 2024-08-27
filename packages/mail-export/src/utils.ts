@@ -32,7 +32,7 @@ export const attachments = function (attachments: string) {
 };
 
 export const from = function (from?: string) {
-	if (!from) return "";
+	if (!from) return `<table class="email-info">`;
 	return `<div class="header">${from}</div><div class="underline"></div><table class="email-info">`;
 };
 
@@ -88,9 +88,9 @@ export function htmlAdress(adress?: MailAdress[]) {
 	if (!adress) return "";
 	let html = "";
 	adress.forEach((adress) => {
-		html +=
-			`<a href=\"mailto:${adress.address}\" class=\"mp_address_email\">${adress.name}</a>` +
-			";";
+        if (adress.name && adress.address)
+            html +=
+                `<a href=\"mailto:${adress.address}\" class=\"mp_address_email\">${adress.name}</a>;`
 	});
 	return html;
 }

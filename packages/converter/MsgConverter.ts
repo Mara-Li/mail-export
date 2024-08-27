@@ -1,7 +1,7 @@
 import { createReadStream, createWriteStream, writeFileSync } from "node:fs";
 import { normalize } from "node:path";
 import { PDFDocument } from "pdf-lib";
-import { MessageParser } from "mail-export";
+import { MessageParser, Convert } from "mail-export";
 
 const filePath = normalize("test_SA.msg");
 const email = createReadStream(filePath);
@@ -25,11 +25,12 @@ async function createAttachment() {
 }
 
 async function createPdfMail() {
-	const html = await emailParser.parse();
-	const pdf = await emailParser.convertToStream("pdf");
+	const html = await emailParser.getAsHtml();
+	const converter = new Convert(html);
+	const pdf = await converter.convertToStream("pdf");
 	const writeStream = createWriteStream("test_SA.pdf");
 	pdf.pipe(writeStream);
-	pdf.on("error", (err) => {
+	pdf.on("error", (err:Error) => {
 		console.error(err);
 	});
 	writeStream.on("error", (err) => {

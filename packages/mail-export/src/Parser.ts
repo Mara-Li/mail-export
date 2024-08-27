@@ -1,15 +1,10 @@
-import type { Readable } from "stream";
-import type { ParseOptions, Parser, UpgradedFieldData } from "./interface";
-import type { ParsedMail } from "mailparser";
+import type { ParseOptions } from "./interface";
 import type { ReadStream } from "fs";
 import * as pdf from "html-pdf";
 
 export class Convert {
-	fileReadStream: Readable;
-	parsedMail!: UpgradedFieldData | ParsedMail;
 	html: string;
-	constructor(fileReadStream: Readable, html: string) {
-		this.fileReadStream = fileReadStream;
+	constructor(html: string) {
 		this.html = html;
 	}
 	async convertToStream(

@@ -15,6 +15,7 @@ import type {
 import type { Readable } from "stream";
 import {
 	attachments,
+	bcc,
 	cc,
 	date,
 	end,
@@ -120,13 +121,14 @@ export class EmlParser implements Parser {
 		return htmlString;
 	}
 
-	async getAsHtml(options?: ParseOptions): Promise<string | undefined> {
-		const result = await this.parse(options);
+	async getAsHtml(parseOptions?: ParseOptions, ignoreEmbedded?: boolean): Promise<string | undefined> {
+		const result = await this.parse(parseOptions);
 		if (!result) throw new Error("No message found");
 		const dateMail = result.date
 			? new Date(result.date).toLocaleString()
 			: new Date().toLocaleString();
-		let headerHtml = `${header}${from(result.from?.html)}${date(dateMail)}`;
+		const fromAdress = htmlAdress(this.createAdress(result.from));
+		let headerHtml = `${header}${from(fromAdress)}${date(dateMail)}`;
 		if (result.to) {
 			const toAdress = this.createAdress(result.to);
 			const htmlTo = htmlAdress(toAdress);
@@ -140,10 +142,13 @@ export class EmlParser implements Parser {
 		if (result.bcc) {
 			const bccAdress = this.createAdress(result.bcc);
 			const htmlBcc = htmlAdress(bccAdress);
-			headerHtml += cc(htmlBcc);
+			headerHtml += bcc(htmlBcc);
 		}
 		if (result.attachments) {
-			const attachmentsHtml = result.attachments
+			const attachmentsFiles = ignoreEmbedded ? result.attachments.filter(
+				(att) => att.contentDisposition === "attachment",
+			) : result.attachments;
+			const attachmentsHtml = attachmentsFiles
 				.map((att) => {
 					return `<a href=\"data:${att.contentType};base64,${att.content.toString("base64")}\" download=\"${att.filename}\">${att.filename}</a>`;
 				})
@@ -151,7 +156,7 @@ export class EmlParser implements Parser {
 			headerHtml += attachments(attachmentsHtml);
 		}
 		if (result.subject) headerHtml += subject(result.subject);
-		const bodyHtml = await this.getBodyHtml(options);
+		const bodyHtml = await this.getBodyHtml(parseOptions);
 		if (bodyHtml) headerHtml += end + `<p>${bodyHtml}</p>`;
 		return headerHtml;
 	}
@@ -167,7 +172,9 @@ export class EmlParser implements Parser {
 	async getEmbedded(options?: ParseOptions): Promise<Attachment[]> {
 		const result = await this.parse(options);
 		if (!result) return [];
-		return result.attachments.filter((att) => att.contentDisposition !== "attachment");
+		if (options?.ignoreEmbedded)
+			return result.attachments.filter((att) => att.contentDisposition !== "attachment");
+		return result.attachments;
 	}
 
 	

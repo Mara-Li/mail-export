@@ -4,6 +4,9 @@ import type { ReadStream } from "node:fs";
 import type { Readable } from "node:stream";
 
 export interface ParseOptions {
+	/**
+	 * Ignores embedded attachments while parsing email eml attachments
+	 */
 	ignoreEmbedded?: boolean;
 	highlightKeywords?: string[];
 	highlightCaseSensitive?: boolean;
@@ -38,8 +41,8 @@ export interface Parser {
 		options?: ParseOptions,
 	): Promise<UpgradedFieldData[] | Attachment[]>;
 	
-	_createAdress?(adress?: AddressObject | AddressObject[]): MailAdress[];
-	getEmbedded?(options?: ParseOptions): Promise<Attachment[]>;
-	
+	getAsHtml(options?: ParseOptions, embedded?: boolean): Promise<string | undefined>;
+	getBodyHtml(options?: ParseOptions): Promise<string | undefined>;
+
 	
 }
