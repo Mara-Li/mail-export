@@ -17,7 +17,6 @@ async function createAttachment() {
 			const pdfDoc = await PDFDocument.load(attachment.content);
 			const pdfBytes = await pdfDoc.save();
 			writeFileSync(attachment.fileName, pdfBytes);
-
 		} else {
 			writeFileSync(attachment.fileName, attachment.content);
 		}
@@ -30,7 +29,7 @@ async function createPdfMail() {
 	const pdf = await converter.convertToStream("pdf");
 	const writeStream = createWriteStream("test_SA.pdf");
 	pdf.pipe(writeStream);
-	pdf.on("error", (err:Error) => {
+	pdf.on("error", (err: Error) => {
 		console.error(err);
 	});
 	writeStream.on("error", (err) => {

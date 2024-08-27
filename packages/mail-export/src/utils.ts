@@ -88,9 +88,8 @@ export function htmlAdress(adress?: MailAdress[]) {
 	if (!adress) return "";
 	let html = "";
 	adress.forEach((adress) => {
-        if (adress.name && adress.address)
-            html +=
-                `<a href=\"mailto:${adress.address}\" class=\"mp_address_email\">${adress.name}</a>;`
+		if (adress.name && adress.address)
+			html += `<a href=\"mailto:${adress.address}\" class=\"mp_address_email\">${adress.name}</a>;`;
 	});
 	return html;
 }

@@ -15,7 +15,12 @@ import {
 	htmlAdress,
 } from "./utils";
 import { Readable } from "stream";
-import type { ParseOptions, Parser, UpgradedFieldData } from "./interface";
+import type {
+	Header,
+	ParseOptions,
+	Parser,
+	UpgradedFieldData,
+} from "./interface";
 import { stream2Buffer } from "./utils";
 
 export class MessageParser implements Parser {
@@ -66,7 +71,7 @@ export class MessageParser implements Parser {
 
 	async getHeader(options?: ParseOptions) {
 		const result = await this.parse(options);
-		const header = {
+		const header: Header = {
 			subject: result.subject,
 			from: [
 				{
@@ -111,58 +116,61 @@ export class MessageParser implements Parser {
 	async getAsHtml(options?: ParseOptions) {
 		const result = await this.parse(options);
 		if (!result) throw new Error("No message found");
-		const bccRecipients = result.recipients
-			?.filter((recipient) => recipient.recipType === "bcc")
-			.map((recipient) => {
-				return { name: recipient.name, address: recipient.email };
-			});
-		let toRecipients = result.recipients
-			?.filter((recipient) => recipient.recipType === "to")
-			.map((recipient) => {
-				return { name: recipient.name, address: recipient.email };
-			});
-		let ccRecipients = result.recipients
-			?.filter((recipient) => recipient.recipType === "cc")
-			.map((recipient) => {
-				return { name: recipient.name, address: recipient.email };
-			});
-		let toHtml = "";
-		let ccHtml = "";
-		let bccHtml = "";
-		toHtml = htmlAdress(toRecipients);
-		bccHtml = htmlAdress(bccRecipients);
-		ccHtml = htmlAdress(ccRecipients);
+		const exclude = options?.excludeHeader;
 
-		const fromSpan = `<a href=\"mailto:${result.senderEmail ?? result.lastModifierName}\" class=\"mp_address_email\">${result.senderEmail ?? result.lastModifierName}</a></span>`;
-		const dateSpan = result.messageDeliveryTime
-			? `${new Date(result.messageDeliveryTime).toLocaleString()}`
-			: "";
+		const fromSpan = !exclude?.from
+			? `<a href=\"mailto:${result.senderEmail ?? result.lastModifierName}\" class=\"mp_address_email\">${result.senderEmail ?? result.lastModifierName}</a></span>`
+			: undefined;
+		const dateSpan =
+			result.messageDeliveryTime && !exclude?.date
+				? `${new Date(result.messageDeliveryTime).toLocaleString()}`
+				: "";
 		let headerHtml = `${header}${from(fromSpan)}${date(dateSpan)}`;
-		if (toHtml) {
-			headerHtml = headerHtml + to(toHtml);
+
+		if (result.recipients) {
+			if (!exclude?.to) {
+				const toRecipients = result.recipients
+					?.filter((recipient) => recipient.recipType === "to")
+					.map((recipient) => {
+						return { name: recipient.name, address: recipient.email };
+					});
+				const toHtml = htmlAdress(toRecipients);
+				headerHtml += to(toHtml);
+			}
+			if (!exclude?.cc) {
+				const ccRecipients = result.recipients
+					?.filter((recipient) => recipient.recipType === "cc")
+					.map((recipient) => {
+						return { name: recipient.name, address: recipient.email };
+					});
+				const ccHtml = htmlAdress(ccRecipients);
+				headerHtml += cc(ccHtml);
+			}
+			if (!exclude?.bcc) {
+				const bccRecipients = result.recipients
+					?.filter((recipient) => recipient.recipType === "bcc")
+					.map((recipient) => {
+						return { name: recipient.name, address: recipient.email };
+					});
+				const bccHtml = htmlAdress(bccRecipients);
+				headerHtml += bcc(bccHtml);
+			}
 		}
-		if (ccHtml) {
-			headerHtml = headerHtml + cc(ccHtml);
-		}
-		if (bccHtml) {
-			headerHtml = headerHtml + bcc(bccHtml);
-		}
-		if (result.attachments) {
+
+		if (result.attachments && !exclude?.attachments) {
 			const attachmentsHtml = (result.attachments as UpgradedFieldData[])
 				.map(
 					(att) =>
 						`<a href=\"data:${att.content};base64,${att.content!.toString()}\" download=\"${att.fileName}\">${att.fileName}</a>`,
 				)
 				.join("<br>");
-			headerHtml = headerHtml + attachments(attachmentsHtml);
+			headerHtml += attachments(attachmentsHtml);
 		}
-		headerHtml = headerHtml + end + `<p>${result.htmlString}</p>`;
+		headerHtml += end + `<p>${result.htmlString}</p>`;
 		return headerHtml;
 	}
 	async getAttachments(options?: ParseOptions) {
 		const result = await this.parse(options);
 		return result.attachments as UpgradedFieldData[];
 	}
-
-	
 }

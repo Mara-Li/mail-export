@@ -27,14 +27,21 @@ export class Convert {
 		}
 	}
 
-	async convertToBuffer(type?: "png" | "jpeg" | "pdf", orientation?: "portrait" | "landscape", format?: "A3" | "A4" | "A5" | "Legal" | "Letter" | "Tabloid", options?: ParseOptions): Promise<Buffer> {
+	async convertToBuffer(
+		type?: "png" | "jpeg" | "pdf",
+		orientation?: "portrait" | "landscape",
+		format?: "A3" | "A4" | "A5" | "Legal" | "Letter" | "Tabloid",
+		options?: ParseOptions,
+	): Promise<Buffer> {
 		try {
 			if (!this.html) throw new Error("No message found");
 			return await new Promise<Buffer>((resolve, reject) => {
-				pdf.create(this.html, { format, orientation, type }).toBuffer((err, buffer) => {
-					if (err) reject(err);
-					resolve(buffer);
-				});
+				pdf
+					.create(this.html, { format, orientation, type })
+					.toBuffer((err, buffer) => {
+						if (err) reject(err);
+						resolve(buffer);
+					});
 			});
 		} catch (error) {
 			throw error;

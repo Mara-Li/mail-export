@@ -8,7 +8,9 @@ const email = createReadStream(filePath);
 const emailParser = new EmlParser(email);
 
 async function createAttachment() {
-	const attachments = await emailParser.getAttachments({ ignoreEmbedded: false });
+	const attachments = await emailParser.getAttachments({
+		ignoreEmbedded: false,
+	});
 	if (!attachments) throw new Error("No attachments found");
 	for (const attachment of attachments) {
 		//convert to file with attachment.content as Uint8Array
@@ -17,7 +19,6 @@ async function createAttachment() {
 			const pdfDoc = await PDFDocument.load(attachment.content);
 			const pdfBytes = await pdfDoc.save();
 			writeFileSync(attachment.filename, pdfBytes);
-
 		} else {
 			writeFileSync(attachment.filename, attachment.content);
 		}
@@ -32,7 +33,7 @@ async function createPdf() {
 	const pdf = await converter.convertToStream("pdf");
 	const writeStream = createWriteStream("test_SA.pdf");
 	pdf.pipe(writeStream);
-	pdf.on("error", (err:Error) => {
+	pdf.on("error", (err: Error) => {
 		console.error(err);
 	});
 	writeStream.on("error", (err) => {

@@ -96,6 +96,7 @@ export class EmlParser implements Parser {
 		const bcc = this.createAdress(result.bcc);
 		const cc = this.createAdress(result.cc);
 		const to = this.createAdress(result.to);
+		const replyTo = this.createAdress(result.replyTo);
 		return {
 			subject: result.subject,
 			from: result.from?.value,
@@ -103,7 +104,8 @@ export class EmlParser implements Parser {
 			cc,
 			to,
 			date: result.date,
-		};
+			replyTo,
+		} as Header;
 	}
 
 	async getBodyHtml(options?: ParseOptions): Promise<string | undefined> {
@@ -121,33 +123,40 @@ export class EmlParser implements Parser {
 		return htmlString;
 	}
 
-	async getAsHtml(parseOptions?: ParseOptions, ignoreEmbedded?: boolean): Promise<string | undefined> {
+	async getAsHtml(parseOptions?: ParseOptions): Promise<string | undefined> {
+		const exclude = parseOptions?.excludeHeader;
 		const result = await this.parse(parseOptions);
 		if (!result) throw new Error("No message found");
 		const dateMail = result.date
 			? new Date(result.date).toLocaleString()
 			: new Date().toLocaleString();
-		const fromAdress = htmlAdress(this.createAdress(result.from));
-		let headerHtml = `${header}${from(fromAdress)}${date(dateMail)}`;
-		if (result.to) {
+		const fromAdress = !exclude?.from
+			? htmlAdress(this.createAdress(result.from))
+			: undefined;
+		const dateHeader = !exclude?.date ? date(dateMail) : undefined;
+
+		let headerHtml = `${header}${from(fromAdress)}${dateHeader}`;
+		if (result.to && !exclude?.to) {
 			const toAdress = this.createAdress(result.to);
 			const htmlTo = htmlAdress(toAdress);
 			headerHtml += to(htmlTo);
 		}
-		if (result.cc) {
+		if (result.cc && !exclude?.cc) {
 			const ccAdress = this.createAdress(result.cc);
 			const htmlCc = htmlAdress(ccAdress);
 			headerHtml += cc(htmlCc);
 		}
-		if (result.bcc) {
+		if (result.bcc && !exclude?.bcc) {
 			const bccAdress = this.createAdress(result.bcc);
 			const htmlBcc = htmlAdress(bccAdress);
 			headerHtml += bcc(htmlBcc);
 		}
-		if (result.attachments) {
-			const attachmentsFiles = ignoreEmbedded ? result.attachments.filter(
-				(att) => att.contentDisposition === "attachment",
-			) : result.attachments;
+		if (result.attachments && !exclude?.attachments) {
+			const attachmentsFiles = exclude?.embeddedAttachments
+				? result.attachments.filter(
+						(att) => att.contentDisposition === "attachment",
+					)
+				: result.attachments;
 			const attachmentsHtml = attachmentsFiles
 				.map((att) => {
 					return `<a href=\"data:${att.contentType};base64,${att.content.toString("base64")}\" download=\"${att.filename}\">${att.filename}</a>`;
@@ -155,27 +164,33 @@ export class EmlParser implements Parser {
 				.join("<br>");
 			headerHtml += attachments(attachmentsHtml);
 		}
-		if (result.subject) headerHtml += subject(result.subject);
+		if (result.replyTo && !exclude?.replyTo) {
+			const replyToAdress = this.createAdress(result.replyTo);
+			const htmlReplyTo = htmlAdress(replyToAdress);
+			headerHtml += to(htmlReplyTo);
+		}
+		if (result.subject && !exclude?.subject)
+			headerHtml += subject(result.subject);
 		const bodyHtml = await this.getBodyHtml(parseOptions);
 		if (bodyHtml) headerHtml += end + `<p>${bodyHtml}</p>`;
 		return headerHtml;
 	}
 
-
-
 	async getAttachments(options?: ParseOptions): Promise<Attachment[]> {
 		const result = await this.parse(options);
 		if (!result) return [];
-		return result.attachments.filter((att) => att.contentDisposition === "attachment");
+		return result.attachments.filter(
+			(att) => att.contentDisposition === "attachment",
+		);
 	}
 
 	async getEmbedded(options?: ParseOptions): Promise<Attachment[]> {
 		const result = await this.parse(options);
 		if (!result) return [];
 		if (options?.ignoreEmbedded)
-			return result.attachments.filter((att) => att.contentDisposition !== "attachment");
+			return result.attachments.filter(
+				(att) => att.contentDisposition !== "attachment",
+			);
 		return result.attachments;
 	}
-
-	
 }
