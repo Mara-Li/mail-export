@@ -37,11 +37,9 @@ export interface Parser {
 	getAttachments(
 		options?: ParseOptions,
 	): Promise<UpgradedFieldData[] | Attachment[]>;
-	convertToStream(
-		type?: "png" | "jpeg" | "pdf",
-		orientation?: "portrait" | "landscape",
-		format?: "A3" | "A4" | "A5" | "Legal" | "Letter" | "Tabloid",
-		options?: ParseOptions,
-	): Promise<ReadStream>;
+	
 	_createAdress?(adress?: AddressObject | AddressObject[]): MailAdress[];
+	getEmbedded?(options?: ParseOptions): Promise<Attachment[]>;
+	
+	
 }

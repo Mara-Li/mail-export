@@ -17,7 +17,6 @@ import {
 import { Readable } from "stream";
 import type { ParseOptions, Parser, UpgradedFieldData } from "./interface";
 import { stream2Buffer } from "./utils";
-import type { ReadStream } from "fs";
 
 export class MessageParser implements Parser {
 	fileReadStream: Readable;
@@ -160,31 +159,10 @@ export class MessageParser implements Parser {
 		headerHtml = headerHtml + end + `<p>${result.htmlString}</p>`;
 		return headerHtml;
 	}
-
-	async convertToStream(
-		type?: "png" | "jpeg" | "pdf",
-		orientation: "portrait" | "landscape" = "landscape",
-		format?: "A3" | "A4" | "A5" | "Legal" | "Letter" | "Tabloid",
-		options?: ParseOptions,
-	) {
-		try {
-			const html = await this.getAsHtml(options);
-			return await new Promise<ReadStream>((resolve, reject) => {
-				pdf.create(html, { type, format, orientation }).toStream((err, res) => {
-					if (err) {
-						reject(err);
-					} else {
-						resolve(res);
-					}
-				});
-			});
-		} catch (err) {
-			throw err;
-		}
-	}
-
 	async getAttachments(options?: ParseOptions) {
 		const result = await this.parse(options);
 		return result.attachments as UpgradedFieldData[];
 	}
+
+	
 }

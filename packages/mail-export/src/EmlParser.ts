@@ -156,31 +156,19 @@ export class EmlParser implements Parser {
 		return headerHtml;
 	}
 
-	async convertToStream(
-		type?: "png" | "jpeg" | "pdf",
-		orientation?: "portrait" | "landscape",
-		format?: "A3" | "A4" | "A5" | "Legal" | "Letter" | "Tabloid",
-		options?: ParseOptions,
-	): Promise<ReadStream> {
-		try {
-			const html = await this.getAsHtml(options);
-			if (!html) throw new Error("No message found");
-			return await new Promise<ReadStream>((resolve, reject) => {
-				pdf
-					.create(html, { format, orientation, type })
-					.toStream((err, stream) => {
-						if (err) reject(err);
-						resolve(stream);
-					});
-			});
-		} catch (error) {
-			throw error;
-		}
-	}
+
 
 	async getAttachments(options?: ParseOptions): Promise<Attachment[]> {
 		const result = await this.parse(options);
 		if (!result) return [];
-		return result.attachments;
+		return result.attachments.filter((att) => att.contentDisposition === "attachment");
 	}
+
+	async getEmbedded(options?: ParseOptions): Promise<Attachment[]> {
+		const result = await this.parse(options);
+		if (!result) return [];
+		return result.attachments.filter((att) => att.contentDisposition !== "attachment");
+	}
+
+	
 }
