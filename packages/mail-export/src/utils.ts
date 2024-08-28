@@ -1,43 +1,43 @@
 import type { Readable } from "stream";
-import type { MailAdress, ParseOptions } from "./interface";
+import type { MailAdress } from "./interface";
 
 export async function stream2Buffer(stream: Readable): Promise<any> {
-	return new Promise((resolve, reject) => {
-		const _buf: Uint8Array[] = [];
+    return new Promise((resolve, reject) => {
+        const _buf: Uint8Array[] = [];
 
-		stream.on("data", (chunk) => _buf.push(chunk));
-		stream.on("end", () => resolve(Buffer.concat(_buf)));
-		stream.on("error", (err) => reject(err));
-	});
+        stream.on("data", (chunk) => _buf.push(chunk));
+        stream.on("end", () => resolve(Buffer.concat(_buf)));
+        stream.on("error", (err) => reject(err));
+    });
 }
 
 export const cc = function (cc: string) {
-	return `<tr><td class="label">Cc:</td><td>${cc}</td></tr>`;
+    return `<tr><td class="label">Cc:</td><td>${cc}</td></tr>`;
 };
 
 export const bcc = function (cci: string) {
-	return `<tr><td class="label">Bcc:</td><td>${cci}</td></tr>`;
+    return `<tr><td class="label">Bcc:</td><td>${cci}</td></tr>`;
 };
 
 export const to = function (to: string) {
-	return `<tr><td class="label">To:</td><td>${to}</td></tr>`;
+    return `<tr><td class="label">To:</td><td>${to}</td></tr>`;
 };
 
 export const subject = function (subject: string) {
-	return `<tr><td class="label">Subject:</td><td>${subject}</td></tr>`;
+    return `<tr><td class="label">Subject:</td><td>${subject}</td></tr>`;
 };
 
 export const attachments = function (attachments: string) {
-	return `<tr><td class="label">Attachments:</td><td>${attachments}</td></tr>`;
+    return `<tr><td class="label">Attachments:</td><td>${attachments}</td></tr>`;
 };
 
 export const from = function (from?: string) {
-	if (!from) return `<table class="email-info">`;
-	return `<div class="header">${from}</div><div class="underline"></div><table class="email-info">`;
+    if (!from) return `<table class="email-info">`;
+    return `<div class="header">${from}</div><div class="underline"></div><table class="email-info">`;
 };
 
 export const date = function (date: string) {
-	return `<tr><td class="label">Date:</td><td>${date}</td></tr>`;
+    return `<tr><td class="label">Date:</td><td>${date}</td></tr>`;
 };
 
 export const end = `</table>`;
@@ -85,11 +85,11 @@ export const header = `<head>
     </style>
 </head>`;
 export function htmlAdress(adress?: MailAdress[]) {
-	if (!adress) return "";
-	let html = "";
-	adress.forEach((adress) => {
-		if (adress.name && adress.address)
-			html += `<a href=\"mailto:${adress.address}\" class=\"mp_address_email\">${adress.name}</a>;`;
-	});
-	return html;
+    if (!adress) return "";
+    let html = "";
+    adress.forEach((adress) => {
+        if (adress.name && adress.address)
+            html += `<a href=\"mailto:${adress.address}\" class=\"mp_address_email\">${adress.name}</a>;`;
+    });
+    return html;
 }

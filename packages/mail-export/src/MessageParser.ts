@@ -1,5 +1,5 @@
 import * as pdf from "html-pdf";
-import MsgReader, { type FieldsData } from "@kenjiuno/msgreader";
+import MsgReader from "@kenjiuno/msgreader";
 import { decompressRTF } from "@kenjiuno/decompressrtf";
 import * as iconv from "iconv-lite";
 import * as rtfParser from "rtf-stream-parser";
@@ -13,7 +13,8 @@ import {
 	bcc,
 	cc,
 	htmlAdress,
-} from "./utils";
+	stream2Buffer
+} from "./utils.js";
 import { Readable } from "stream";
 import type {
 	Header,
@@ -21,7 +22,6 @@ import type {
 	Parser,
 	MessageFieldData,
 } from "./interface";
-import { stream2Buffer } from "./utils";
 
 export class MessageParser implements Parser {
 	fileReadStream: Readable;

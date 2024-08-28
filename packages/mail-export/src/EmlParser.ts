@@ -10,7 +10,6 @@ import type {
 	MailAdress,
 	ParseOptions,
 	Parser,
-	MessageFieldData,
 } from "./interface";
 import type { Readable } from "stream";
 import {
@@ -24,9 +23,7 @@ import {
 	htmlAdress,
 	subject,
 	to,
-} from "./utils";
-import { ReadStream } from "fs";
-import * as pdf from "html-pdf";
+} from "./utils.js";
 
 export class EmlParser implements Parser {
 	parsedMail!: ParsedMail;
@@ -156,8 +153,8 @@ export class EmlParser implements Parser {
 		if (result.attachments && !exclude?.attachments) {
 			const attachmentsFiles = exclude?.embeddedAttachments
 				? result.attachments.filter(
-						(att) => att.contentDisposition === "attachment",
-					)
+					(att) => att.contentDisposition === "attachment",
+				)
 				: result.attachments;
 			const attachmentsHtml = attachmentsFiles
 				.map((att) => {

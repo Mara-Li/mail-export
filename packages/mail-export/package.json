@@ -1,19 +1,24 @@
 {
   "name": "mail-export",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "description": "Parse .eml and .msg files or convert to pdf, html, jpeg or png format. Extract headers and attachments from .eml and msg files. Natively in typescript, support mjs & cjs!",
   "private": false,
   "scripts": {
-    "build": "tsc -p ./tsconfig.json"
+    "prebuild": "rimraf dist",
+    "build": "tsc -p ./tsconfig.json",
+    "prepublish": "bun run build"
   },
-  "type": "commonjs",
+  "type": "module",
   "types": "./dist/types/index.d.ts",
   "files": [
     "dist"
   ],
   "devDependencies": {
+    "rimraf": "^6.0.1"
+  },
+  "dependencies": {
     "@kenjiuno/decompressrtf": "^0.1.4",
     "@kenjiuno/msgreader": "^1.20.0-alpha.1",
     "@types/mailparser": "^3.4.4",
@@ -23,8 +28,6 @@
     "iconv-lite": "^0.6.3",
     "mailparser": "^3.6.4",
     "rtf-stream-parser": "^3.6.0",
-    "typescript": "^5.5.4",
-    "@types/html-pdf": "^3.0.3",
-    "pdf-lib": "^1.17.1"
+    "typescript": "^5.5.4"
   }
 }
