@@ -2,6 +2,7 @@ import type { FieldsData } from "@kenjiuno/msgreader";
 import type { Attachment, ParsedMail } from "mailparser";
 import type { Readable } from "node:stream";
 
+
 export interface ParseOptions {
 	/**
 	 * Ignores embedded attachments while parsing email eml attachments

@@ -1,30 +1,34 @@
 {
-	"name": "workspace",
-	"workspaces": ["packages/*"],
-	"scripts": {
-		"start": "bun run packages/converter/index.ts"
-	},
-	"private": true,
-	"devDependencies": {
-		"@biomejs/biome": "1.8.3",
-		"@types/bun": "^1.1.8",
-		"@kenjiuno/decompressrtf": "^0.1.4",
-		"@kenjiuno/msgreader": "^1.20.0-alpha.1",
-		"@types/mailparser": "^3.4.4",
-		"@types/node": "^22.5.0",
-		"document-highlighter": "^2.1.0",
-		"html-pdf": "^3.0.1",
-		"iconv-lite": "^0.6.3",
-		"mailparser": "^3.6.4",
-		"rtf-stream-parser": "^3.6.0",
-		"typescript": "^5.5.4"
-	},
-	"peerDependencies": {
-		"typescript": "^5.0.0"
-	},
-	"trustedDependencies": ["@biomejs/biome", "esbuild", "phantomjs-prebuilt"],
-	"dependencies": {
-		"@types/html-pdf": "^3.0.3",
-		"pdf-lib": "^1.17.1"
-	}
+  "name": "mail-export",
+  "version": "1.0.3",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "description": "Parse .eml and .msg files or convert to pdf, html, jpeg or png format. Extract headers and attachments from .eml and msg files. Natively in typescript, support mjs & cjs!",
+  "private": false,
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "tsc -p ./tsconfig.json",
+    "prepublish": "bun run build"
+  },
+  "type": "module",
+  "types": "./dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  },
+  "dependencies": {
+    "@kenjiuno/decompressrtf": "^0.1.4",
+    "@kenjiuno/msgreader": "^1.20.0-alpha.1",
+    "@types/mailparser": "^3.4.4",
+    "@types/node": "^22.5.0",
+    "document-highlighter": "^2.1.0",
+    "iconv-lite": "^0.6.3",
+    "mailparser": "^3.6.4",
+    "puppeteer": "^23.2.1",
+    "puppeteer-html-pdf": "^4.0.8",
+    "rtf-stream-parser": "^3.6.0",
+    "typescript": "^5.5.4"
+  }
 }

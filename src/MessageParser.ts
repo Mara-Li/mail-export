@@ -21,7 +21,7 @@ import type {
 	ParseOptions,
 	Parser,
 	MessageFieldData,
-} from "./interface";
+} from "./interface.js";
 
 export class MessageParser implements Parser {
 	fileReadStream: Readable;

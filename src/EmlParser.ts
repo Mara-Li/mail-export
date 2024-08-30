@@ -10,7 +10,7 @@ import type {
 	MailAdress,
 	ParseOptions,
 	Parser,
-} from "./interface";
+} from "./interface.js";
 import type { Readable } from "stream";
 import {
 	attachments,
