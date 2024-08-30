@@ -44,17 +44,7 @@ export const end = `</table>`;
 
 export const header = `<head>
     <style>
-        @media print {
-            
-            html, body {
-                height: 100%;
-                box-sizing: border-box;
-                page-break-inside: avoid;
-            }
-        }
-        @page {
-            size: auto;
-        }
+        
         @font-face
                 {font-family:"Cambria Math";
                 panose-1:2 4 5 3 5 4 6 3 2 4;
@@ -71,7 +61,6 @@ export const header = `<head>
                 mso-font-signature:536871559 3 0 0 415 0;}
         body, html {
             font-family: Aptos, sans-serif;
-            height: 100%;
         }
         .header {
             font-weight: bold;
