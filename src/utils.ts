@@ -43,10 +43,18 @@ export const date = function (date: string) {
 export const end = `</table>`;
 
 export const header = `<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Layout</title>
     <style>
+        @media print {
+            
+            html, body {
+                height: 100%;
+                box-sizing: border-box;
+                page-break-inside: avoid;
+            }
+        }
+        @page {
+            size: auto;
+        }
         @font-face
                 {font-family:"Cambria Math";
                 panose-1:2 4 5 3 5 4 6 3 2 4;
@@ -61,8 +69,9 @@ export const header = `<head>
                 mso-generic-font-family:swiss;
                 mso-font-pitch:variable;
                 mso-font-signature:536871559 3 0 0 415 0;}
-        body {
+        body, html {
             font-family: Aptos, sans-serif;
+            height: 100%;
         }
         .header {
             font-weight: bold;
@@ -86,10 +95,10 @@ export const header = `<head>
 </head>`;
 export function htmlAdress(adress?: MailAdress[]) {
     if (!adress) return "";
-    let html = "";
+    const html: string[] = [];
     adress.forEach((adress) => {
         if (adress.name && adress.address)
-            html += `<a href=\"mailto:${adress.address}\" class=\"mp_address_email\">${adress.name}</a>;`;
+            html.push(`<a href=\"mailto:${adress.address}\" class=\"mp_address_email\">${adress.name}</a>`);
     });
-    return html;
+    return html.join("; ");
 }

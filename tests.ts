@@ -1,19 +1,21 @@
-import { log } from "console";
-import { create } from "domain";
-import path from "node:path";
-import PuppeteerHTMLPDF from "puppeteer-html-pdf";
-
-const htmlPDF = new PuppeteerHTMLPDF();
-const options = {
+import { Convert } from "./src/Converter";
+import { EmlParser } from "./src/EmlParser";
+import fs from "fs";
+import path from "path"
+const inputs = path.normalize("tests/inputs")
+const output = path.normalize("tests/outputs")
+const filePath = path.join(inputs, "test_SA.eml");
+const file = fs.createReadStream(filePath);
+const emlParser = new EmlParser(file)
+const html = await emlParser.getAsHtml({ excludeHeader: { embeddedAttachments: true } });
+if (!html) throw "unexpected error"
+const convert = new Convert(html);
+fs.writeFileSync("new.html", convert.html);
+await convert.createPdf("sample.pdf", {
+	printBackground: true, displayHeaderFooter: false,
+	headless: true,
 	format: "A4",
-};
-//@ts-ignore
-htmlPDF.setOptions(options);
-
-const content = "<style> h1 {color:red;} </style> <h1>Welcome to puppeteer-html-pdf</h1>";
-
-try {
-	const f = await htmlPDF.create(content);
-} catch (error) {
-	console.log("PuppeteerHTMLPDF error", error);
-}
+	margin: {
+		top: "0px", bottom: "0px", left: "0px", right: "0px"
+	}
+})

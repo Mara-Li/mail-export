@@ -19,13 +19,14 @@ npm install mail-export
 The following script works the same for eml & msg files. It will use the Converter class to convert into a readable stream, that will be used thereafter to create a pdf file.
 
 ```typescript
-import { createReadStream, createWriteStream, writeFileSync } from "node:fs";
 import { normalize } from "node:path";
 import { EmlParser, Convert } from "mail-export";
+import fs from "node:fs"
 
 const filePath = normalize("test_SA_3.eml"); //can also be a .msg file
-const emlParser = new EmlParser();
-const html = await emailParser.getAsHtml(undefined, true);
+const readable = fs.createReadStream(filePath)
+const emlParser = new EmlParser(readable);
+const html = await emailParser.getAsHtml();
 if (!html) throw new Error("No message found");
 const converter = new Convert(html);
 await converter.createPdf(path: "sample.pdf", { format: "A4" });

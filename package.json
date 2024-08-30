@@ -24,6 +24,7 @@
     "@types/mailparser": "^3.4.4",
     "@types/node": "^22.5.0",
     "document-highlighter": "^2.1.0",
+    "find-chrome-bin": "^2.0.2",
     "iconv-lite": "^0.6.3",
     "mailparser": "^3.6.4",
     "puppeteer": "^23.2.1",

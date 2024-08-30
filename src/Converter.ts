@@ -21,17 +21,21 @@ export interface PuppeteerHTMLPDFOptions extends PDFOptions {
 export class Convert {
 	html: string;
 	constructor(html: string) {
-		this.html = html.replace(/Attachments:<\/td><td><a href=".*" download/gi, "Attachments:</td><td><a download");
+		this.html = html
+			.replace(/Attachments:<\/td><td><a href=".*" download/gi, "Attachments:</td><td><a download")
+			.replace(/@page WordSection.*{.*;}.div.WordSection/gmsi, ".div.WordSection");
 	}
 
 	private createOption(
 		option?: PuppeteerHTMLPDFOptions,
 	): PuppeteerHTMLPDFOptions {
-		if (!option) return {
+		const DEFAULT_OPTIONS: PuppeteerHTMLPDFOptions = {
 			format: "A4",
 			headless: true,
 			args: ["--no-sandbox", "--disable-setuid-sandbox", "--disabled-setupid-sandbox"],
 		}
+		if (!option) return DEFAULT_OPTIONS
+		else Object.assign(DEFAULT_OPTIONS, option);
 		if (option.path) delete option.path;
 		return option;
 	}
