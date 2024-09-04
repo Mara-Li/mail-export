@@ -13,7 +13,7 @@ import {
 	bcc,
 	cc,
 	htmlAdress,
-	stream2Buffer
+	stream2Buffer,
 } from "./utils.js";
 import { Readable } from "stream";
 import type {
@@ -129,34 +129,32 @@ export class MessageParser implements Parser {
 				: "";
 		let headerHtml = `${header}${from(fromSpan)}${date(dateSpan)}`;
 
-		if (result.recipients) {
-			if (!exclude?.to) {
-				const toRecipients = result.recipients
-					?.filter((recipient) => recipient.recipType === "to")
-					.map((recipient) => {
-						return { name: recipient.name, address: recipient.email };
-					});
-				const toHtml = htmlAdress(toRecipients);
-				headerHtml += to(toHtml);
-			}
-			if (!exclude?.cc) {
-				const ccRecipients = result.recipients
-					?.filter((recipient) => recipient.recipType === "cc")
-					.map((recipient) => {
-						return { name: recipient.name, address: recipient.email };
-					});
-				const ccHtml = htmlAdress(ccRecipients);
-				headerHtml += cc(ccHtml);
-			}
-			if (!exclude?.bcc) {
-				const bccRecipients = result.recipients
-					?.filter((recipient) => recipient.recipType === "bcc")
-					.map((recipient) => {
-						return { name: recipient.name, address: recipient.email };
-					});
-				const bccHtml = htmlAdress(bccRecipients);
-				headerHtml += bcc(bccHtml);
-			}
+		if (!exclude?.to) {
+			const toRecipients = result.recipients
+				?.filter((recipient) => recipient.recipType === "to")
+				.map((recipient) => {
+					return { name: recipient.name, address: recipient.email };
+				});
+			const toHtml = htmlAdress(toRecipients);
+			headerHtml += to(toHtml);
+		}
+		if (!exclude?.cc) {
+			const ccRecipients = result.recipients
+				?.filter((recipient) => recipient.recipType === "cc")
+				.map((recipient) => {
+					return { name: recipient.name, address: recipient.email };
+				});
+			const ccHtml = htmlAdress(ccRecipients);
+			headerHtml += cc(ccHtml);
+		}
+		if (!exclude?.bcc) {
+			const bccRecipients = result.recipients
+				?.filter((recipient) => recipient.recipType === "bcc")
+				.map((recipient) => {
+					return { name: recipient.name, address: recipient.email };
+				});
+			const bccHtml = htmlAdress(bccRecipients);
+			headerHtml += bcc(bccHtml);
 		}
 
 		if (result.attachments && !exclude?.attachments) {

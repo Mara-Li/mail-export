@@ -5,12 +5,7 @@ import {
 	type EmailAddress,
 	type ParsedMail,
 } from "mailparser";
-import type {
-	Header,
-	MailAdress,
-	ParseOptions,
-	Parser,
-} from "./interface.js";
+import type { Header, MailAdress, ParseOptions, Parser } from "./interface.js";
 import type { Readable } from "stream";
 import {
 	attachments,
@@ -135,26 +130,26 @@ export class EmlParser implements Parser {
 		const dateHeader = !exclude?.date ? date(dateMail) : undefined;
 
 		let headerHtml = `${header}${from(fromAdress)}${dateHeader}`;
-		if (result.to && !exclude?.to) {
+		if (!exclude?.to) {
 			const toAdress = this.createAdress(result.to);
 			const htmlTo = htmlAdress(toAdress);
 			headerHtml += to(htmlTo);
 		}
-		if (result.cc && !exclude?.cc) {
+		if (!exclude?.cc) {
 			const ccAdress = this.createAdress(result.cc);
 			const htmlCc = htmlAdress(ccAdress);
 			headerHtml += cc(htmlCc);
 		}
-		if (result.bcc && !exclude?.bcc) {
+		if (!exclude?.bcc) {
 			const bccAdress = this.createAdress(result.bcc);
 			const htmlBcc = htmlAdress(bccAdress);
 			headerHtml += bcc(htmlBcc);
 		}
-		if (result.attachments && !exclude?.attachments) {
+		if (!exclude?.attachments) {
 			const attachmentsFiles = exclude?.embeddedAttachments
 				? result.attachments.filter(
-					(att) => att.contentDisposition === "attachment",
-				)
+						(att) => att.contentDisposition === "attachment",
+					)
 				: result.attachments;
 			const attachmentsHtml = attachmentsFiles
 				.map((att) => {
@@ -168,8 +163,7 @@ export class EmlParser implements Parser {
 			const htmlReplyTo = htmlAdress(replyToAdress);
 			headerHtml += to(htmlReplyTo);
 		}
-		if (result.subject && !exclude?.subject)
-			headerHtml += subject(result.subject);
+		if (!exclude?.subject) headerHtml += subject(result.subject);
 		const bodyHtml = await this.getBodyHtml(parseOptions);
 		if (bodyHtml) headerHtml += end + `<p>${bodyHtml}</p>`;
 		return headerHtml;

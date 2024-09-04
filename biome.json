@@ -11,6 +11,6 @@
 	},
 	"files": {
 		"ignore": ["node_modules", "dist"],
-		"include": ["packages/**/*.ts"]
+		"include": ["src/**/*.ts"]
 	}
 }
