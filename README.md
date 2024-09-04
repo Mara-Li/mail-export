@@ -29,7 +29,7 @@ const emlParser = new EmlParser(readable);
 const html = await emailParser.getAsHtml();
 if (!html) throw new Error("No message found");
 const converter = new Convert(html);
-await converter.createPdf(path: "sample.pdf", { format: "A4" });
+await converter.createPdf("sample.pdf",{ format: "A4" });
 ```
 
 ## Download all attachments
@@ -144,8 +144,8 @@ The `ExcludeHeader` interface specifies options for excluding certain headers fr
 - **`attachments`** (`boolean`)
 - **`embeddedAttachments`** (`boolean`)
 
-### MailAdress
-The `MailAdress` interface represents a parsed email address in a digestible format.
+### MailAddress
+The `MailAddress` interface represents a parsed email address in a digestible format.
 - **`name`** (optional, `string`)
   - **Description**: The name associated with the email address.
 
@@ -158,19 +158,19 @@ The `Header` interface represents the metadata associated with an email, includi
 - **`subject`** (optional, `string`)
   - **Description**: The subject of the email.
 
-- **`from`** (optional, `MailAdress[]`)
+- **`from`** (optional, `MailAddress[]`)
   - **Description**: The sender(s) of the email.
 
-- **`bcc`** (optional, `MailAdress[]`)
+- **`bcc`** (optional, `MailAddress[]`)
   - **Description**: The BCC (Blind Carbon Copy) recipient(s) of the email.
 
-- **`cc`** (optional, `MailAdress[]`)
+- **`cc`** (optional, `MailAddress[]`)
   - **Description**: The CC (Carbon Copy) recipient(s) of the email.
 
-- **`to`** (optional, `MailAdress[]`)
+- **`to`** (optional, `MailAddress[]`)
   - **Description**: The primary recipient(s) of the email.
 
-- **`replyTo`** (optional, `MailAdress[]`)
+- **`replyTo`** (optional, `MailAddress[]`)
   - **Description**: The reply-to address(es) for the email. 
   - **Important**: This property exists only in the EML format.
 
@@ -259,7 +259,7 @@ For option, you can refer to the [puppeteer-html-pdf documentation](https://www.
 **Note** : `convertToStream` and `convertToBuffer` remove the `path` option if provided.
 
 Default options:
-```ts
+```json5
 {
   format: "A4",
   headless: true,
@@ -285,7 +285,7 @@ const converter = new Converter(html)
 	  - `opt` (optional, `PuppeteerHTMLPDFOptions`): Option for Puppeteer
   - **Returns**: Buffer (Promise)
 - **`createPdf(path: string, opt?: PuppeteerHTMLPDFOptions):Promise<void>`**
-  - **Description** : Convert an html to a pdf file, following the `pdf` parameter.
+  - **Description** : Convert a html to a pdf file, following the `pdf` parameter.
   - **Parameters** :
     - `path` (`string`) : Path to save the PDF.
     - `opt` (optional, `PuppeteerHTMLPDFOptions`): Option for Puppeteer
