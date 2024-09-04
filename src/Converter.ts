@@ -1,6 +1,6 @@
+import { Readable } from "node:stream";
 import type { PDFOptions } from "puppeteer";
 import PuppeteerHTMLPDF from "puppeteer-html-pdf";
-import { Readable } from "stream";
 
 /**
  * Allow to export a html string into a buffer or a stream
@@ -45,45 +45,37 @@ export class Convert {
 			],
 		};
 		if (!option) return DEFAULT_OPTIONS;
-		else Object.assign(DEFAULT_OPTIONS, option);
-		if (option.path) delete option.path;
+		Object.assign(DEFAULT_OPTIONS, option);
+		if (option.path) option.path = undefined;
 		return option;
 	}
 
 	async convertToStream(opt?: PuppeteerHTMLPDFOptions): Promise<Readable> {
 		const options = this.createOption(opt);
-		try {
-			if (!this.html) throw new Error("No message found");
-			return await new Promise<Readable>((resolve, reject) => {
-				const htmlPdf = new PuppeteerHTMLPDF();
-				htmlPdf.setOptions(options);
-				htmlPdf.create(this.html, (err, buffer) => {
-					if (err) reject(err);
-					if (!buffer) throw new Error("No buffer found");
-					resolve(Readable.from(buffer));
-				});
+		if (!this.html) throw new Error("No message found");
+		return await new Promise<Readable>((resolve, reject) => {
+			const htmlPdf = new PuppeteerHTMLPDF();
+			htmlPdf.setOptions(options);
+			htmlPdf.create(this.html, (err, buffer) => {
+				if (err) reject(err);
+				if (!buffer) throw new Error("No buffer found");
+				resolve(Readable.from(buffer));
 			});
-		} catch (error) {
-			throw error;
-		}
+		});
 	}
 
 	async convertToBuffer(opt?: PuppeteerHTMLPDFOptions): Promise<Buffer> {
 		const option = this.createOption(opt);
-		try {
-			if (!this.html) throw new Error("No message found");
-			return await new Promise<Buffer>((resolve, reject) => {
-				const htmlPdf = new PuppeteerHTMLPDF();
-				htmlPdf.setOptions(option);
-				htmlPdf.create(this.html, (err, buffer) => {
-					if (err) reject(err);
-					if (!buffer) throw new Error("No buffer found");
-					resolve(buffer);
-				});
+		if (!this.html) throw new Error("No message found");
+		return await new Promise<Buffer>((resolve, reject) => {
+			const htmlPdf = new PuppeteerHTMLPDF();
+			htmlPdf.setOptions(option);
+			htmlPdf.create(this.html, (err, buffer) => {
+				if (err) reject(err);
+				if (!buffer) throw new Error("No buffer found");
+				resolve(buffer);
 			});
-		} catch (error) {
-			throw error;
-		}
+		});
 	}
 
 	/**
@@ -95,19 +87,15 @@ export class Convert {
 	async createPdf(path: string, opt?: PuppeteerHTMLPDFOptions): Promise<void> {
 		const option = this.createOption(opt);
 		option.path = path;
-		try {
-			if (!this.html) throw new Error("No message found");
-			return await new Promise<void>((resolve, reject) => {
-				const htmlPdf = new PuppeteerHTMLPDF();
-				htmlPdf.setOptions(option);
-				htmlPdf.create(this.html, (err, buffer) => {
-					if (err) reject(err);
-					if (!buffer) throw new Error("No buffer found");
-					resolve();
-				});
+		if (!this.html) throw new Error("No message found");
+		return await new Promise<void>((resolve, reject) => {
+			const htmlPdf = new PuppeteerHTMLPDF();
+			htmlPdf.setOptions(option);
+			htmlPdf.create(this.html, (err, buffer) => {
+				if (err) reject(err);
+				if (!buffer) throw new Error("No buffer found");
+				resolve();
 			});
-		} catch (error) {
-			throw error;
-		}
+		});
 	}
 }

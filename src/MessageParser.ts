@@ -10,13 +10,13 @@ import type {
 	Parser,
 } from "./interface.js";
 import {
+	END,
+	HEADER,
 	attachments,
 	bcc,
 	cc,
 	date,
-	end,
 	from,
-	header,
 	htmlAddress,
 	stream2Buffer,
 	to,
@@ -124,7 +124,7 @@ export class MessageParser implements Parser {
 			result.messageDeliveryTime && !exclude?.date
 				? `${new Date(result.messageDeliveryTime).toLocaleString()}`
 				: "";
-		let headerHtml = `${header}${from(fromSpan)}${date(dateSpan)}`;
+		let headerHtml = `${HEADER}${from(fromSpan)}${date(dateSpan)}`;
 
 		if (!exclude?.to) {
 			const toRecipients = result.recipients
@@ -165,7 +165,7 @@ export class MessageParser implements Parser {
 				: undefined;
 			headerHtml += attachments(attachmentsHtml);
 		}
-		headerHtml += `${end}<p>${result?.htmlString ?? ""}</p>`;
+		headerHtml += `${END}<p>${result?.htmlString ?? ""}</p>`;
 		return headerHtml;
 	}
 	async getAttachments(options?: ParseOptions) {

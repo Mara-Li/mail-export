@@ -17,14 +17,14 @@ export interface ParseOptions {
 	 */
 	highlightCaseSensitive?: boolean;
 	/**
-	 * Allow to modify the header of the result pdf/html
+	 * Allow to modify the HEADER of the result pdf/html
 	 */
 	excludeHeader?: Partial<ExcludeHeader>;
 }
 
 /**
- * Allow to exclude some header from the html output
- * See {Header} for the list of header
+ * Allow to exclude some HEADER from the html output
+ * See {Header} for the list of HEADER
  */
 type ExcludeHeader = {
 	bcc: boolean;
@@ -79,7 +79,7 @@ export interface Parser {
 	fileReadStream: Readable;
 	parsedMail: MessageFieldData | ParsedMail;
 	/**
-	 * Primary function, allow to convert the readable into a parsed Mail to allow extracting the content, header...
+	 * Primary function, allow to convert the readable into a parsed Mail to allow extracting the content, HEADER...
 	 * @note If there already a parsedMail, it will return it directly without re-parsing the file
 	 * @param options {ParseOptions} - Options to modify the parsing behavior
 	 */
@@ -87,7 +87,7 @@ export interface Parser {
 		options?: ParseOptions,
 	): Promise<MessageFieldData | ParsedMail | undefined>;
 	/**
-	 * Parse the header of the mail, including attachments
+	 * Parse the HEADER of the mail, including attachments
 	 * @param options {ParseOptions} - Options to modify the parsing behavior
 	 * @returns {Header} - Header of the mail
 	 */
@@ -100,14 +100,14 @@ export interface Parser {
 		options?: ParseOptions,
 	): Promise<MessageFieldData[] | Attachment[]>;
 	/**
-	 * Return the content of the mail as a html string, including header and attachments as field in the html
+	 * Return the content of the mail as a html string, including HEADER and attachments as field in the html
 	 * Attachment can be download if the html is directly written in a file
 	 * @param {ParseOptions} options  - Options to modify the parsing behavior
 	 * @returns {string} - The mail as a html string
 	 */
 	getAsHtml(options?: ParseOptions): Promise<string | undefined>;
 	/**
-	 * Only return the body of the mail, without formatting the header fields
+	 * Only return the body of the mail, without formatting the HEADER fields
 	 * @param options {ParseOptions} - Options to modify the parsing behavior
 	 * @returns {string} - The body of the mail as a html string
 	 */

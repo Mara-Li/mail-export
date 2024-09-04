@@ -8,13 +8,13 @@ import {
 } from "mailparser";
 import type { Header, MailAddress, ParseOptions, Parser } from "./interface.js";
 import {
+	END,
+	HEADER,
 	attachments,
 	bcc,
 	cc,
 	date,
-	end,
 	from,
-	header,
 	htmlAddress,
 	subject,
 	to,
@@ -127,7 +127,7 @@ export class EmlParser implements Parser {
 			: undefined;
 		const dateHeader = !exclude?.date ? date(dateMail) : undefined;
 
-		let headerHtml = `${header}${from(fromAdress)}${dateHeader}`;
+		let headerHtml = `${HEADER}${from(fromAdress)}${dateHeader}`;
 		if (!exclude?.to) {
 			const toAdress = this.createAdress(result.to);
 			const htmlTo = htmlAddress(toAdress);
@@ -163,7 +163,7 @@ export class EmlParser implements Parser {
 		}
 		if (!exclude?.subject) headerHtml += subject(result.subject);
 		const bodyHtml = await this.getBodyHtml(parseOptions);
-		if (bodyHtml) headerHtml += `${end}<p>${bodyHtml}</p>`;
+		if (bodyHtml) headerHtml += `${END}<p>${bodyHtml}</p>`;
 		return headerHtml;
 	}
 
