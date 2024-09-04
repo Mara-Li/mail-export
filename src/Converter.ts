@@ -96,7 +96,6 @@ export class Convert {
 		const option = this.createOption(opt);
 		option.path = path;
 		if (!this.html) throw new Error("No message found");
-		fs.writeFileSync("sample.html", this.pdfParseMail());
 		return await new Promise<void>((resolve, reject) => {
 			const htmlPdf = new PuppeteerHTMLPDF();
 			htmlPdf.setOptions(option);
