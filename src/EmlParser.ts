@@ -42,7 +42,7 @@ export class EmlParser implements Parser {
 					);
 				let flags = "gi";
 				if (options.highlightCaseSensitive) flags = "g";
-				options.highlightKeywords.forEach((keyword) => {
+				for (const keyword of options.highlightKeywords) {
 					if (result.html) {
 						result.html = result.html.replace(
 							new RegExp(keyword, flags),
@@ -54,7 +54,7 @@ export class EmlParser implements Parser {
 							(str) => `<mark>${str}</mark>`,
 						);
 					}
-				});
+				}
 			}
 			this.parsedMail = result;
 			return result;
@@ -69,12 +69,12 @@ export class EmlParser implements Parser {
 		const mails: MailAddress[] = [];
 		for (const adress of result) {
 			if (adress.value) {
-				adress.value.forEach((email: EmailAddress) => {
+				for (const email of adress.value) {
 					mails.push({
 						name: email.name,
 						address: email.address,
 					});
-				});
+				}
 			}
 		}
 		return mails;
@@ -119,28 +119,26 @@ export class EmlParser implements Parser {
 		const exclude = parseOptions?.excludeHeader;
 		const result = await this.parse(parseOptions);
 		if (!result) throw new Error("No message found");
-		const dateMail = result.date
-			? new Date(result.date).toLocaleString()
-			: new Date().toLocaleString();
-		const fromAdress = !exclude?.from
+		const dateMail = result.date ? new Date(result.date) : new Date();
+		const fromAddress = !exclude?.from
 			? htmlAddress(this.createAdress(result.from))
 			: undefined;
 		const dateHeader = !exclude?.date ? date(dateMail) : undefined;
 
-		let headerHtml = `${HEADER}${from(fromAdress)}${dateHeader}`;
+		let headerHtml = `${HEADER}${from(fromAddress)}${dateHeader}`;
 		if (!exclude?.to) {
 			const toAdress = this.createAdress(result.to);
 			const htmlTo = htmlAddress(toAdress);
 			headerHtml += to(htmlTo);
 		}
 		if (!exclude?.cc) {
-			const ccAdress = this.createAdress(result.cc);
-			const htmlCc = htmlAddress(ccAdress);
+			const ccAddress = this.createAdress(result.cc);
+			const htmlCc = htmlAddress(ccAddress);
 			headerHtml += cc(htmlCc);
 		}
 		if (!exclude?.bcc) {
-			const bccAdress = this.createAdress(result.bcc);
-			const htmlBcc = htmlAddress(bccAdress);
+			const bccAddress = this.createAdress(result.bcc);
+			const htmlBcc = htmlAddress(bccAddress);
 			headerHtml += bcc(htmlBcc);
 		}
 		if (!exclude?.attachments) {
@@ -157,8 +155,8 @@ export class EmlParser implements Parser {
 			headerHtml += attachments(attachmentsHtml);
 		}
 		if (result.replyTo && !exclude?.replyTo) {
-			const replyToAdress = this.createAdress(result.replyTo);
-			const htmlReplyTo = htmlAddress(replyToAdress);
+			const replyToAddress = this.createAdress(result.replyTo);
+			const htmlReplyTo = htmlAddress(replyToAddress);
 			headerHtml += to(htmlReplyTo);
 		}
 		if (!exclude?.subject) headerHtml += subject(result.subject);

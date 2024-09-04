@@ -1,4 +1,5 @@
 import type { Readable } from "node:stream";
+import { format } from "date-fns";
 import dedent from "ts-dedent";
 import type { MailAddress } from "./interface";
 
@@ -14,23 +15,23 @@ export async function stream2Buffer(stream: Readable): Promise<any> {
 }
 
 export const cc = (cc: string) =>
-	`<tr><td class="label">CC</td><td>${cc}</td></tr>`;
+	`<tr><td class="label">Cc:</td><td>${cc}</td></tr>`;
 
 export const bcc = (cci: string) =>
-	`<tr><td class="label">BCC</td><td>${cci}</td></tr>`;
+	`<tr><td class="label">Bcc:</td><td>${cci}</td></tr>`;
 
 export const to = (to: string) =>
-	`<tr><td class="label">TO</td><td>${to}</td></tr>`;
+	`<tr><td class="label">To:</td><td>${to}</td></tr>`;
 
 export const subject = (subject?: string) => {
 	if (!subject) return "";
-	return `<tr><td class="label">Subject</td><td>${subject}</td></tr>`;
+	return `<tr><td class="label">Subject:</td><td>${subject}</td></tr>`;
 };
 
 export const attachments = (attachments?: string) => {
 	if (!attachments)
-		return '<tr><td class="label">Attachments</td><td>/</td></tr>';
-	return `<tr><td class="label">Attachments</td><td>${attachments}</td></tr>`;
+		return '<tr><td class="label">Attachments:</td><td>/</td></tr>';
+	return `<tr><td class="label">Attachments:</td><td>${attachments}</td></tr>`;
 };
 
 export const from = (from?: string) => {
@@ -38,8 +39,12 @@ export const from = (from?: string) => {
 	return `<div class="header">${from}</div><div class="underline"></div><table class="email-info">`;
 };
 
-export const date = (date: string) =>
-	`<tr><td class="label">Date</td><td>${date}</td></tr>`;
+export const date = (date: Date | string) => {
+	if (typeof date === "string")
+		return `<tr><td class="label">Sent:</td><td></td></tr>`;
+
+	return `<tr><td class="label">Sent:</td><td>${format(date, "EEEE d MMMM yyyy HH:mm")}</td></tr>`;
+};
 
 export const END = "</table><br>";
 
@@ -71,9 +76,9 @@ export const HEADER = dedent(`
 				font-size: 18px;
 			}
 			.underline {
-				border-bottom: 1px solid black;
-				margin: 10px 0;
-				}
+				border-bottom: 5px solid black;
+				0 0 0.3rem 0
+			}
 			.email-info {
 				width: 100%;
 				border-collapse: collapse;

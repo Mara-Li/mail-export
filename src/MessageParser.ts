@@ -122,8 +122,8 @@ export class MessageParser implements Parser {
 			: undefined;
 		const dateSpan =
 			result.messageDeliveryTime && !exclude?.date
-				? `${new Date(result.messageDeliveryTime).toLocaleString()}`
-				: "";
+				? new Date(result.messageDeliveryTime)
+				: new Date();
 		let headerHtml = `${HEADER}${from(fromSpan)}${date(dateSpan)}`;
 
 		if (!exclude?.to) {

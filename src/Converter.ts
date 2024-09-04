@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import { Readable } from "node:stream";
 import type { PDFOptions } from "puppeteer";
 import PuppeteerHTMLPDF from "puppeteer-html-pdf";
@@ -78,6 +79,13 @@ export class Convert {
 		});
 	}
 
+	private pdfParseMail(): string {
+		const regex =
+			/<a href="mailto:(?<mail>.*?)" class="mp_address_email">(?<nom>.*?)<\/a>/gim;
+
+		return this.html.replaceAll(regex, "$2 &lt$1&gt");
+	}
+
 	/**
 	 * Create a pdf file from the html string
 	 * @param {string} path  - Path to save the pdf file
@@ -88,10 +96,11 @@ export class Convert {
 		const option = this.createOption(opt);
 		option.path = path;
 		if (!this.html) throw new Error("No message found");
+		fs.writeFileSync("sample.html", this.pdfParseMail());
 		return await new Promise<void>((resolve, reject) => {
 			const htmlPdf = new PuppeteerHTMLPDF();
 			htmlPdf.setOptions(option);
-			htmlPdf.create(this.html, (err, buffer) => {
+			htmlPdf.create(this.pdfParseMail(), (err, buffer) => {
 				if (err) reject(err);
 				if (!buffer) throw new Error("No buffer found");
 				resolve();
