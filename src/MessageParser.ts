@@ -1,27 +1,26 @@
-import * as pdf from "html-pdf";
-import MsgReader from "@kenjiuno/msgreader";
+import type { Readable } from "node:stream";
 import { decompressRTF } from "@kenjiuno/decompressrtf";
+import MsgReader from "@kenjiuno/msgreader";
 import * as iconv from "iconv-lite";
 import * as rtfParser from "rtf-stream-parser";
-import {
-	header,
-	from,
-	end,
-	attachments,
-	to,
-	date,
-	bcc,
-	cc,
-	htmlAdress,
-	stream2Buffer,
-} from "./utils.js";
-import { Readable } from "stream";
 import type {
 	Header,
+	MessageFieldData,
 	ParseOptions,
 	Parser,
-	MessageFieldData,
 } from "./interface.js";
+import {
+	attachments,
+	bcc,
+	cc,
+	date,
+	end,
+	from,
+	header,
+	htmlAddress,
+	stream2Buffer,
+	to,
+} from "./utils.js";
 
 export class MessageParser implements Parser {
 	fileReadStream: Readable;
@@ -33,12 +32,12 @@ export class MessageParser implements Parser {
 
 	async parse(options?: ParseOptions) {
 		if (this.parsedMail) return this.parsedMail;
-		let buffer = await stream2Buffer(this.fileReadStream);
-		let emailData = new MsgReader(buffer);
+		const buffer = await stream2Buffer(this.fileReadStream);
+		const emailData = new MsgReader(buffer);
 		const emailFieldsData = emailData.getFileData() as MessageFieldData;
 		//@ts-ignore
-		let outputArray = decompressRTF(emailFieldsData.compressedRtf);
-		let decompressedRtf = Buffer.from(outputArray).toString("ascii");
+		const outputArray = decompressRTF(emailFieldsData.compressedRtf);
+		const decompressedRtf = Buffer.from(outputArray).toString("ascii");
 		emailFieldsData.attachments = (
 			emailFieldsData.attachments as MessageFieldData[]
 		)?.map((att) => {
@@ -49,23 +48,21 @@ export class MessageParser implements Parser {
 		emailFieldsData.htmlString = rtfParser
 			.deEncapsulateSync(decompressedRtf, { decode: iconv.decode })
 			.text.toString();
-		if (options && options.highlightKeywords) {
+		if (options?.highlightKeywords) {
 			if (!Array.isArray(options.highlightKeywords))
 				throw new Error(
 					"err: highlightKeywords is not an array, expected: String[]",
 				);
 			let flags = "gi";
 			if (options.highlightCaseSensitive) flags = "g";
-			options.highlightKeywords.forEach((keyword) => {
+			for (const keyword of options.highlightKeywords) {
 				emailFieldsData.htmlString = emailFieldsData.htmlString?.replace(
 					new RegExp(keyword, flags),
-					function (str) {
-						return `<mark>${str}</mark>`;
-					},
+					(str) => `<mark>${str}</mark>`,
 				);
-			});
+			}
 		}
-		delete emailFieldsData.compressedRtf;
+		emailFieldsData.compressedRtf = undefined;
 		this.parsedMail = emailFieldsData;
 		return emailFieldsData;
 	}
@@ -135,7 +132,7 @@ export class MessageParser implements Parser {
 				.map((recipient) => {
 					return { name: recipient.name, address: recipient.email };
 				});
-			const toHtml = htmlAdress(toRecipients);
+			const toHtml = htmlAddress(toRecipients);
 			headerHtml += to(toHtml);
 		}
 		if (!exclude?.cc) {
@@ -144,7 +141,7 @@ export class MessageParser implements Parser {
 				.map((recipient) => {
 					return { name: recipient.name, address: recipient.email };
 				});
-			const ccHtml = htmlAdress(ccRecipients);
+			const ccHtml = htmlAddress(ccRecipients);
 			headerHtml += cc(ccHtml);
 		}
 		if (!exclude?.bcc) {
@@ -153,20 +150,22 @@ export class MessageParser implements Parser {
 				.map((recipient) => {
 					return { name: recipient.name, address: recipient.email };
 				});
-			const bccHtml = htmlAdress(bccRecipients);
+			const bccHtml = htmlAddress(bccRecipients);
 			headerHtml += bcc(bccHtml);
 		}
 
-		if (result.attachments && !exclude?.attachments) {
-			const attachmentsHtml = (result.attachments as MessageFieldData[])
-				.map(
-					(att) =>
-						`<a href=\"data:${att.content};base64,${att.content!.toString()}\" download=\"${att.fileName}\">${att.fileName}</a>`,
-				)
-				.join("<br>");
+		if (!exclude?.attachments) {
+			const attachmentsHtml = result?.attachments
+				? (result.attachments as MessageFieldData[])
+						.map((att) => {
+							if (att.content)
+								return `<a href=\"data:${att.content};base64,${att.content.toString()}\" download=\"${att.fileName}\">${att.fileName}</a>`;
+						})
+						.join("<br>")
+				: undefined;
 			headerHtml += attachments(attachmentsHtml);
 		}
-		headerHtml += end + `<p>${result.htmlString}</p>`;
+		headerHtml += `${end}<p>${result?.htmlString ?? ""}</p>`;
 		return headerHtml;
 	}
 	async getAttachments(options?: ParseOptions) {

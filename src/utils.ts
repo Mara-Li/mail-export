@@ -1,5 +1,5 @@
-import type { Readable } from "stream";
-import type { MailAdress } from "./interface";
+import type { Readable } from "node:stream";
+import type { MailAddress } from "./interface";
 
 export async function stream2Buffer(stream: Readable): Promise<any> {
 	return new Promise((resolve, reject) => {
@@ -11,37 +11,35 @@ export async function stream2Buffer(stream: Readable): Promise<any> {
 	});
 }
 
-export const cc = function (cc: string) {
-	return `<tr><td class="label">Cc:</td><td>${cc}</td></tr>`;
-};
+export const cc = (cc: string) =>
+	`<tr><td class="label">Cc:</td><td>${cc}</td></tr>`;
 
-export const bcc = function (cci: string) {
-	return `<tr><td class="label">Bcc:</td><td>${cci}</td></tr>`;
-};
+export const bcc = (cci: string) =>
+	`<tr><td class="label">Bcc:</td><td>${cci}</td></tr>`;
 
-export const to = function (to: string) {
-	return `<tr><td class="label">To:</td><td>${to}</td></tr>`;
-};
+export const to = (to: string) =>
+	`<tr><td class="label">To:</td><td>${to}</td></tr>`;
 
-export const subject = function (subject?: string) {
+export const subject = (subject?: string) => {
 	if (!subject) return "";
 	return `<tr><td class="label">Subject:</td><td>${subject}</td></tr>`;
 };
 
-export const attachments = function (attachments: string) {
+export const attachments = (attachments?: string) => {
+	if (!attachments)
+		return '<tr><td class="label">Attachments:</td><td>/</td></tr>';
 	return `<tr><td class="label">Attachments:</td><td>${attachments}</td></tr>`;
 };
 
-export const from = function (from?: string) {
+export const from = (from?: string) => {
 	if (!from) return `<table class="email-info">`;
 	return `<div class="header">${from}</div><div class="underline"></div><table class="email-info">`;
 };
 
-export const date = function (date: string) {
-	return `<tr><td class="label">Date:</td><td>${date}</td></tr>`;
-};
+export const date = (date: string) =>
+	`<tr><td class="label">Date:</td><td>${date}</td></tr>`;
 
-export const end = `</table>`;
+export const end = "</table>";
 
 export const header = `<head>
     <style>
@@ -81,16 +79,15 @@ export const header = `<head>
             vertical-align: top;
             padding-right: 2em;
         }
-    </style>
 </head>`;
-export function htmlAdress(adress?: MailAdress[]) {
-	if (!adress) return "";
+export function htmlAddress(addresses?: MailAddress[]) {
+	if (!addresses) return "";
 	const html: string[] = [];
-	adress.forEach((adress) => {
-		if (adress.name && adress.address)
+	for (const address of addresses) {
+		if (address.name && address.address)
 			html.push(
-				`<a href=\"mailto:${adress.address}\" class=\"mp_address_email\">${adress.name}</a>`,
+				`<a href=\"mailto:${address.address}\" class=\"mp_address_email\">${address.name}</a>`,
 			);
-	});
+	}
 	return html.join("; ");
 }

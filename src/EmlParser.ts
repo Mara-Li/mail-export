@@ -1,12 +1,12 @@
+import type { Readable } from "node:stream";
 import {
-	simpleParser,
 	type AddressObject,
 	type Attachment,
 	type EmailAddress,
 	type ParsedMail,
+	simpleParser,
 } from "mailparser";
-import type { Header, MailAdress, ParseOptions, Parser } from "./interface.js";
-import type { Readable } from "stream";
+import type { Header, MailAddress, ParseOptions, Parser } from "./interface.js";
 import {
 	attachments,
 	bcc,
@@ -15,7 +15,7 @@ import {
 	end,
 	from,
 	header,
-	htmlAdress,
+	htmlAddress,
 	subject,
 	to,
 } from "./utils.js";
@@ -46,16 +46,12 @@ export class EmlParser implements Parser {
 					if (result.html) {
 						result.html = result.html.replace(
 							new RegExp(keyword, flags),
-							function (str) {
-								return `<mark>${str}</mark>`;
-							},
+							(str) => `<mark>${str}</mark>`,
 						);
 					} else if (result.textAsHtml) {
 						result.textAsHtml = result.textAsHtml.replace(
 							new RegExp(keyword, flags),
-							function (str) {
-								return `<mark>${str}</mark>`;
-							},
+							(str) => `<mark>${str}</mark>`,
 						);
 					}
 				});
@@ -65,10 +61,12 @@ export class EmlParser implements Parser {
 		}
 	}
 
-	private createAdress(adress?: AddressObject | AddressObject[]): MailAdress[] {
+	private createAdress(
+		adress?: AddressObject | AddressObject[],
+	): MailAddress[] {
 		if (!adress) return [];
 		const result = Array.isArray(adress) ? adress : [adress];
-		const mails: MailAdress[] = [];
+		const mails: MailAddress[] = [];
 		for (const adress of result) {
 			if (adress.value) {
 				adress.value.forEach((email: EmailAddress) => {
@@ -105,7 +103,7 @@ export class EmlParser implements Parser {
 	async getBodyHtml(options?: ParseOptions): Promise<string | undefined> {
 		const result = await this.parse(options);
 		if (!result) return undefined;
-		let replacements = {
+		const replacements = {
 			"’": "'",
 			"–": "&#9472;",
 		};
@@ -125,24 +123,24 @@ export class EmlParser implements Parser {
 			? new Date(result.date).toLocaleString()
 			: new Date().toLocaleString();
 		const fromAdress = !exclude?.from
-			? htmlAdress(this.createAdress(result.from))
+			? htmlAddress(this.createAdress(result.from))
 			: undefined;
 		const dateHeader = !exclude?.date ? date(dateMail) : undefined;
 
 		let headerHtml = `${header}${from(fromAdress)}${dateHeader}`;
 		if (!exclude?.to) {
 			const toAdress = this.createAdress(result.to);
-			const htmlTo = htmlAdress(toAdress);
+			const htmlTo = htmlAddress(toAdress);
 			headerHtml += to(htmlTo);
 		}
 		if (!exclude?.cc) {
 			const ccAdress = this.createAdress(result.cc);
-			const htmlCc = htmlAdress(ccAdress);
+			const htmlCc = htmlAddress(ccAdress);
 			headerHtml += cc(htmlCc);
 		}
 		if (!exclude?.bcc) {
 			const bccAdress = this.createAdress(result.bcc);
-			const htmlBcc = htmlAdress(bccAdress);
+			const htmlBcc = htmlAddress(bccAdress);
 			headerHtml += bcc(htmlBcc);
 		}
 		if (!exclude?.attachments) {
@@ -160,12 +158,12 @@ export class EmlParser implements Parser {
 		}
 		if (result.replyTo && !exclude?.replyTo) {
 			const replyToAdress = this.createAdress(result.replyTo);
-			const htmlReplyTo = htmlAdress(replyToAdress);
+			const htmlReplyTo = htmlAddress(replyToAdress);
 			headerHtml += to(htmlReplyTo);
 		}
 		if (!exclude?.subject) headerHtml += subject(result.subject);
 		const bodyHtml = await this.getBodyHtml(parseOptions);
-		if (bodyHtml) headerHtml += end + `<p>${bodyHtml}</p>`;
+		if (bodyHtml) headerHtml += `${end}<p>${bodyHtml}</p>`;
 		return headerHtml;
 	}
 

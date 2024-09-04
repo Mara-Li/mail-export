@@ -1,6 +1,6 @@
+import type { Readable } from "node:stream";
 import type { FieldsData } from "@kenjiuno/msgreader";
 import type { Attachment, ParsedMail } from "mailparser";
-import type { Readable } from "node:stream";
 
 export interface ParseOptions {
 	/**
@@ -53,7 +53,7 @@ export interface MessageFieldData extends FieldsData {
 /**
  * Parse the adresse into a digestable format
  */
-export interface MailAdress {
+export interface MailAddress {
 	name?: string;
 	address?: string;
 }
@@ -63,14 +63,14 @@ export interface MailAdress {
  */
 export interface Header {
 	subject?: string;
-	from?: MailAdress[];
-	bcc?: MailAdress[];
-	cc?: MailAdress[];
-	to?: MailAdress[];
+	from?: MailAddress[];
+	bcc?: MailAddress[];
+	cc?: MailAddress[];
+	to?: MailAddress[];
 	/**
 	 * Doesn't exist in the msg format, only in the eml format
 	 */
-	replyTo?: MailAdress[];
+	replyTo?: MailAddress[];
 	date?: string | Date;
 	attachments?: Attachment[] | MessageFieldData[];
 }
