@@ -12,7 +12,7 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "types": [
-      "bun-types", // add Bun global,
+      "bun-types",
       "puppeteer-html-pdf"
     ],
     "declarationMap": true,
