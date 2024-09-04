@@ -68,7 +68,6 @@ export class Convert {
 		try {
 			if (!this.html) throw new Error("No message found");
 			return await new Promise<Buffer>((resolve, reject) => {
-				this.html = this.html.replace(/Attachments:<\/td><td><a href=".*" download/gi, "Attachments:</td><td><a download")
 				const htmlPdf = new PuppeteerHTMLPDF();
 				htmlPdf.setOptions(option)
 				htmlPdf.create(this.html, (err, buffer) => {
