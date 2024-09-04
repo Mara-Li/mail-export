@@ -35,6 +35,7 @@
     "puppeteer": "^23.2.1",
     "puppeteer-html-pdf": "^4.0.8",
     "rtf-stream-parser": "^3.6.0",
+    "ts-dedent": "^2.2.0",
     "typescript": "^5.5.4"
   }
 }
