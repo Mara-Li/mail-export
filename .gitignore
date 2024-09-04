@@ -5,3 +5,4 @@ dist/**
 tests/inputs/**
 **/node_modules/**
 **/packages/mail-export/node_modules/**
+*.idea/**
