@@ -67,7 +67,7 @@ export const header = `<head>
             font-size: 18px;
         }
         .underline {
-            border-bottom: 3px solid black;
+            border-bottom: 1px solid black;
             margin: 10px 0;
         }
         .email-info {
@@ -78,7 +78,7 @@ export const header = `<head>
             font-weight: bold;
             width: 100px;
             vertical-align: top;
-			padding-right: 2em;
+            padding-right: 2em;
         }
     </style>
 </head>`;
