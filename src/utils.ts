@@ -1,6 +1,6 @@
 import type { Readable } from "node:stream";
 import { format } from "date-fns";
-import dedent from "ts-dedent";
+import dedent from "dedent";
 import type { MailAddress } from "./interface";
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>

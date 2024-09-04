@@ -29,6 +29,7 @@
     "@types/node": "^22.5.0",
     "commit-and-tag-version": "^12.4.2",
     "date-fns": "^3.6.0",
+    "dedent": "^1.5.3",
     "document-highlighter": "^2.1.0",
     "find-chrome-bin": "^2.0.2",
     "iconv-lite": "^0.6.3",
@@ -36,7 +37,6 @@
     "puppeteer": "^23.2.1",
     "puppeteer-html-pdf": "^4.0.8",
     "rtf-stream-parser": "^3.6.0",
-    "ts-dedent": "^2.2.0",
     "typescript": "^5.5.4"
   }
 }
