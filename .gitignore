@@ -6,3 +6,8 @@ tests/inputs/**
 **/node_modules/**
 **/packages/mail-export/node_modules/**
 *.idea/**
+*.html
+*.yml
+.vscode/**
+*.pdf
+qodana.yaml
