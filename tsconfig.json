@@ -1,25 +1,23 @@
 {
-  "compilerOptions": {
-    "lib": ["ESNext"],
-    "module": "ESNext",
-    "target": "ESNext",
-    "moduleResolution": "node",
-    "strict": true,
-    "downlevelIteration": true,
-    "skipLibCheck": true,
-    "jsx": "preserve",
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowJs": true,
-    "types": [
-      "bun-types",
-      "puppeteer-html-pdf"
-    ],
-    "declarationMap": true,
-    "declaration": true,
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "declarationDir": "./dist/types"
-  },
-  "include": ["src/**/*.ts"]
+	"compilerOptions": {
+		"lib": ["ESNext"],
+		"module": "ESNext",
+		"target": "ESNext",
+		"moduleResolution": "node",
+		"strict": true,
+		"downlevelIteration": true,
+		"skipLibCheck": true,
+		"jsx": "preserve",
+		"allowSyntheticDefaultImports": true,
+		"forceConsistentCasingInFileNames": true,
+		"esModuleInterop": true,
+		"allowJs": true,
+		"types": ["bun-types", "puppeteer-html-pdf"],
+		"declarationMap": true,
+		"declaration": true,
+		"rootDir": "./src",
+		"outDir": "./dist",
+		"declarationDir": "./dist/types"
+	},
+	"include": ["src/**/*.ts", "tests.ts"]
 }

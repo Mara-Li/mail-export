@@ -158,8 +158,13 @@ export class MessageParser implements Parser {
 			const attachmentsHtml = result?.attachments
 				? (result.attachments as MessageFieldData[])
 						.map((att) => {
+							let fileName = att.fileName;
+							if (!fileName) {
+								const index = result.attachments?.indexOf(att);
+								fileName = `attachment_${index}`;
+							}
 							if (att.content)
-								return `<a href=\"data:${att.content};base64,${att.content.toString()}\" download=\"${att.fileName}\">${att.fileName}</a>`;
+								return `<a href=\"data:${att.content};base64,${att.content.toString()}\" download=\"${fileName}\">${fileName}</a>`;
 						})
 						.join("<br>")
 				: undefined;

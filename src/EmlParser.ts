@@ -1,4 +1,4 @@
-import type { Readable } from "node:stream";
+import { Readable } from "node:stream";
 import {
 	type AddressObject,
 	type Attachment,
@@ -6,6 +6,7 @@ import {
 	type ParsedMail,
 	simpleParser,
 } from "mailparser";
+import { extension } from "mime-types";
 import type { Header, MailAddress, ParseOptions, Parser } from "./interface.js";
 import {
 	END,
@@ -147,11 +148,29 @@ export class EmlParser implements Parser {
 						(att) => att.contentDisposition === "attachment",
 					)
 				: result.attachments;
-			const attachmentsHtml = attachmentsFiles
-				.map((att) => {
-					return `<a href=\"data:${att.contentType};base64,${att.content.toString("base64")}\" download=\"${att.filename}\">${att.filename}</a>`;
-				})
-				.join("<br>");
+
+			const mappedAttachments = await Promise.all(
+				attachmentsFiles.map(async (att) => {
+					let filename = att.filename;
+					if (!filename) {
+						const type = extension(att.contentType);
+						if (type === "eml") {
+							const content = att.content;
+							const parser = new EmlParser(Readable.from(content));
+							const header = await parser.getHeader();
+							filename = `${header?.subject ?? "sample"}.eml`;
+						} else if (type) {
+							const index = result.attachments.indexOf(att);
+							if (type) filename = `attachment_${index}.${type}`;
+						} else {
+							const index = result.attachments.indexOf(att);
+							filename = `attachment_${index}`;
+						}
+					}
+					return `<a href=\"data:${att.contentType};base64,${att.content.toString("base64")}\" download=\"${filename}\">${filename}</a>`;
+				}),
+			);
+			const attachmentsHtml = mappedAttachments.join("<br>");
 			headerHtml += attachments(attachmentsHtml);
 		}
 		if (result.replyTo && !exclude?.replyTo) {

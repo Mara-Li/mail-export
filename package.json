@@ -1,42 +1,43 @@
 {
-  "name": "mail-export",
-  "version": "1.2.2",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "description": "Parse .eml and .msg files or convert to pdf. Extract headers and attachments from .eml and msg files. Natively in typescript, support mjs & cjs!",
-  "private": false,
-  "scripts": {
-    "lint": "biome format --write src/",
-    "prebuild": "rimraf dist",
-    "build": "tsc -p ./tsconfig.json",
-    "prerelease": "bun run build",
-    "release": "commit-and-tag-version",
-    "postrelease": "npm publish"
-  },
-  "type": "module",
-  "types": "./dist/types/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "devDependencies": {
-    "@biomejs/biome": "1.8.3",
-    "rimraf": "^6.0.1"
-  },
-  "dependencies": {
-    "@kenjiuno/decompressrtf": "^0.1.4",
-    "@kenjiuno/msgreader": "^1.20.0-alpha.1",
-    "@types/mailparser": "^3.4.4",
-    "@types/node": "^22.5.0",
-    "commit-and-tag-version": "^12.4.2",
-    "date-fns": "^3.6.0",
-    "dedent": "^1.5.3",
-    "document-highlighter": "^2.1.0",
-    "find-chrome-bin": "^2.0.2",
-    "iconv-lite": "^0.6.3",
-    "mailparser": "^3.6.4",
-    "puppeteer": "^23.2.1",
-    "puppeteer-html-pdf": "^4.0.8",
-    "rtf-stream-parser": "^3.6.0",
-    "typescript": "^5.5.4"
-  }
+	"name": "mail-export",
+	"version": "1.2.2",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"description": "Parse .eml and .msg files or convert to pdf. Extract headers and attachments from .eml and msg files. Natively in typescript, support mjs & cjs!",
+	"private": false,
+	"scripts": {
+		"lint": "biome format --write src/",
+		"prebuild": "rimraf dist",
+		"build": "tsc -p ./tsconfig.json",
+		"prerelease": "bun run build",
+		"release": "commit-and-tag-version",
+		"postrelease": "npm publish"
+	},
+	"type": "module",
+	"types": "./dist/types/index.d.ts",
+	"files": ["dist"],
+	"devDependencies": {
+		"@biomejs/biome": "1.8.3",
+		"rimraf": "^6.0.1",
+		"sanitize-filename": "^1.6.3"
+	},
+	"dependencies": {
+		"@kenjiuno/decompressrtf": "^0.1.4",
+		"@kenjiuno/msgreader": "^1.20.0-alpha.1",
+		"@types/mailparser": "^3.4.4",
+		"@types/mime-types": "^2.1.4",
+		"@types/node": "^22.5.0",
+		"commit-and-tag-version": "^12.4.2",
+		"date-fns": "^3.6.0",
+		"dedent": "^1.5.3",
+		"document-highlighter": "^2.1.0",
+		"find-chrome-bin": "^2.0.2",
+		"iconv-lite": "^0.6.3",
+		"mailparser": "^3.6.4",
+		"mime-types": "^2.1.35",
+		"puppeteer": "^23.2.1",
+		"puppeteer-html-pdf": "^4.0.8",
+		"rtf-stream-parser": "^3.6.0",
+		"typescript": "^5.5.4"
+	}
 }
