@@ -48,8 +48,10 @@ export const date = (date: Date | string) => {
 
 export const END = "</table><br>";
 
-export const HEADER = dedent(`
+export const HEADER = (title?: string) =>
+	dedent(`
 	<head>
+		<title>${title}</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<style>
 			@font-face {

@@ -19,6 +19,7 @@ import {
 	from,
 	htmlAddress,
 	stream2Buffer,
+	subject,
 	to,
 } from "./utils.js";
 
@@ -124,7 +125,7 @@ export class MessageParser implements Parser {
 			result.messageDeliveryTime && !exclude?.date
 				? new Date(result.messageDeliveryTime)
 				: new Date();
-		let headerHtml = `${HEADER}${from(fromSpan)}${date(dateSpan)}`;
+		let headerHtml = `${HEADER(result.subject ?? "Email")}${from(fromSpan)}${date(dateSpan)}`;
 
 		if (!exclude?.to) {
 			const toRecipients = result.recipients
@@ -170,6 +171,7 @@ export class MessageParser implements Parser {
 				: undefined;
 			headerHtml += attachments(attachmentsHtml);
 		}
+		if (!exclude?.subject) headerHtml += subject(result.subject);
 		headerHtml += `${END}<p>${result?.htmlString ?? ""}</p>`;
 		return headerHtml;
 	}

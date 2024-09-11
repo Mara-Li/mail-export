@@ -125,7 +125,7 @@ export class EmlParser implements Parser {
 			: undefined;
 		const dateHeader = !exclude?.date ? date(dateMail) : undefined;
 
-		let headerHtml = `${HEADER}${from(fromAddress)}${dateHeader}`;
+		let headerHtml = `${HEADER(result.subject ?? "Email")}${from(fromAddress)}${dateHeader}`;
 		if (!exclude?.to) {
 			const toAdress = this.createAddress(result.to);
 			const htmlTo = htmlAddress(toAdress);
