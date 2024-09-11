@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import { Readable } from "node:stream";
 import type { PDFOptions } from "puppeteer";
 import PuppeteerHTMLPDF from "puppeteer-html-pdf";
