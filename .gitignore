@@ -11,3 +11,5 @@ tests/inputs/**
 .vscode/**
 *.pdf
 qodana.yaml
+/tests/outputs/2023000401 Proof of submission.png
+tests.ts
