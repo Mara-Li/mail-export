@@ -19,5 +19,5 @@
 		"outDir": "./dist",
 		"declarationDir": "./dist/types"
 	},
-	"include": ["src/**/*.ts", "tests.ts"]
+	"include": ["src/**/*.ts"]
 }

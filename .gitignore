@@ -13,3 +13,6 @@ tests/inputs/**
 qodana.yaml
 /tests/outputs/2023000401 Proof of submission.png
 tests.ts
+/tests.d.ts
+/tests.d.ts.map
+/tests.js
