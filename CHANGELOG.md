@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.2.4](https://github.com/Mara-Li/Archivette/compare/v1.2.3...v1.2.4) (2024-09-11)
+
+
+### Bug Fixes
+
+* blank title in some pdf reader ([07dba80](https://github.com/Mara-Li/Archivette/commit/07dba80f6c29213bdbdd6f25ac8324dd2ae38f9a))
+
 ## [1.2.3](https://github.com/Mara-Li/Archivette/compare/v1.2.2...v1.2.3) (2024-09-11)
 
 ## [1.2.2](https://github.com/Mara-Li/Archivette/compare/v1.2.1...v1.2.2) (2024-09-04)
