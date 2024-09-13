@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.3.0](https://github.com/Mara-Li/Archivette/compare/v1.2.5...v1.3.0) (2024-09-13)
+
+
+### Features
+
+* allow custom style & remove style from loaded html ([9991114](https://github.com/Mara-Li/Archivette/commit/9991114d1d707bf2b52a2c55d9eda2e0a81accb3))
+
 ## [1.2.5](https://github.com/Mara-Li/Archivette/compare/v1.2.4...v1.2.5) (2024-09-13)
 
 
