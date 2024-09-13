@@ -1,4 +1,5 @@
 import { Readable } from "node:stream";
+import { JSDOM } from "jsdom";
 import {
 	type AddressObject,
 	type Attachment,
@@ -35,6 +36,20 @@ export class EmlParser implements Parser {
 					(att) => att.contentDisposition === "attachment",
 				);
 			}
+			if (result.html) {
+				const domParser = new JSDOM(result.html);
+				//remove all <style>
+				const styles = domParser.window.document.querySelectorAll("style");
+				// biome-ignore lint/complexity/noForEach: <explanation>
+				styles.forEach((style) => style.remove());
+				result.html = domParser.window.document.body.innerHTML;
+			} else if (result.textAsHtml) {
+				const domParser = new JSDOM(result.textAsHtml).window.document;
+				const styles = domParser.querySelectorAll("style");
+				// biome-ignore lint/complexity/noForEach: <explanation>
+				styles.forEach((style) => style.remove());
+				result.textAsHtml = domParser.body.innerHTML;
+			}
 			if (options?.highlightKeywords) {
 				if (!Array.isArray(options.highlightKeywords))
 					throw new Error(
@@ -42,6 +57,7 @@ export class EmlParser implements Parser {
 					);
 				let flags = "gi";
 				if (options.highlightCaseSensitive) flags = "g";
+
 				for (const keyword of options.highlightKeywords) {
 					if (result.html) {
 						result.html = result.html.replace(
@@ -125,7 +141,7 @@ export class EmlParser implements Parser {
 			: undefined;
 		const dateHeader = !exclude?.date ? date(dateMail) : undefined;
 
-		let headerHtml = `${HEADER(result.subject ?? "Email")}${from(fromAddress)}${dateHeader}`;
+		let headerHtml = `${HEADER(result.subject ?? "Email", parseOptions?.customStyle)}${from(fromAddress)}${dateHeader}`;
 		if (!exclude?.to) {
 			const toAdress = this.createAddress(result.to);
 			const htmlTo = htmlAddress(toAdress);

@@ -2,6 +2,7 @@ import type { Readable } from "node:stream";
 import { decompressRTF } from "@kenjiuno/decompressrtf";
 import MsgReader from "@kenjiuno/msgreader";
 import * as iconv from "iconv-lite";
+import { JSDOM } from "jsdom";
 import * as rtfParser from "rtf-stream-parser";
 import type {
 	Header,
@@ -49,6 +50,8 @@ export class MessageParser implements Parser {
 		emailFieldsData.htmlString = rtfParser
 			.deEncapsulateSync(decompressedRtf, { decode: iconv.decode })
 			.text.toString();
+		const domParser = new JSDOM(emailFieldsData.htmlString);
+		emailFieldsData.htmlString = domParser.window.document.body.innerHTML;
 		if (options?.highlightKeywords) {
 			if (!Array.isArray(options.highlightKeywords))
 				throw new Error(
@@ -125,7 +128,7 @@ export class MessageParser implements Parser {
 			result.messageDeliveryTime && !exclude?.date
 				? new Date(result.messageDeliveryTime)
 				: new Date();
-		let headerHtml = `${HEADER(result.subject ?? "Email")}${from(fromSpan)}${date(dateSpan)}`;
+		let headerHtml = `${HEADER(result.subject ?? "Email", options?.customStyle)}${from(fromSpan)}${date(dateSpan)}`;
 
 		if (!exclude?.to) {
 			const toRecipients = result.recipients

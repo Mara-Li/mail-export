@@ -42,6 +42,7 @@ export class Convert {
 				"--no-sandbox",
 				"--disable-setuid-sandbox",
 				"--disabled-setupid-sandbox",
+				"--font-render-hinting=none",
 			],
 		};
 		if (!option) return DEFAULT_OPTIONS;

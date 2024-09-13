@@ -48,12 +48,16 @@ export const date = (date: Date | string) => {
 
 export const END = "</table><br>";
 
-export const HEADER = (title?: string) =>
-	dedent(`
+export function HEADER(title?: string, customStyle?: string) {
+	let header = dedent(`
 	<head>
 		<title>${title}</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<style>
+	`);
+	if (customStyle) header += customStyle;
+	else {
+		header += dedent(`
 			@font-face {
 				font-family:"Cambria Math";
 				panose-1:2 4 5 3 5 4 6 3 2 4;
@@ -83,8 +87,14 @@ export const HEADER = (title?: string) =>
 				vertical-align: top;
 				padding-right: 2em;
 			}
+		`);
+	}
+	header += dedent(`
 		</style>
 	</head>`);
+	return header;
+}
+
 export function htmlAddress(addresses?: MailAddress[]) {
 	if (!addresses) return "";
 	const html: string[] = [];

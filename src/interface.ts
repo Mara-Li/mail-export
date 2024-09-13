@@ -20,6 +20,11 @@ export interface ParseOptions {
 	 * Allow to modify the HEADER of the result pdf/html
 	 */
 	excludeHeader?: Partial<ExcludeHeader>;
+
+	/**
+	 * Allow to modify the style in the resulting html
+	 */
+	customStyle?: string;
 }
 
 /**
