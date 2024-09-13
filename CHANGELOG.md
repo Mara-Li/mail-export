@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.2.5](https://github.com/Mara-Li/Archivette/compare/v1.2.4...v1.2.5) (2024-09-13)
+
+
+### Bug Fixes
+
+* broken margin ([6e738de](https://github.com/Mara-Li/Archivette/commit/6e738de2ca2bc13c171d6bc39953cc3f992b7010))
+
 ## [1.2.4](https://github.com/Mara-Li/Archivette/compare/v1.2.3...v1.2.4) (2024-09-11)
 
 

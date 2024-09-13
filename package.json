@@ -1,6 +1,6 @@
 {
 	"name": "mail-export",
-	"version": "1.2.4",
+	"version": "1.2.5",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
 	"description": "Parse .eml and .msg files or convert to pdf. Extract headers and attachments from .eml and msg files. Natively in typescript, support mjs & cjs!",
@@ -40,6 +40,7 @@
 		"puppeteer": "^23.2.1",
 		"puppeteer-html-pdf": "^4.0.8",
 		"rtf-stream-parser": "^3.6.0",
-		"typescript": "^5.5.4"
+		"typescript": "^5.5.4",
+		"uniformize": "^1.0.7"
 	}
 }
