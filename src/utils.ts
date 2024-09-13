@@ -57,21 +57,13 @@ export const HEADER = (title?: string) =>
 			@font-face {
 				font-family:"Cambria Math";
 				panose-1:2 4 5 3 5 4 6 3 2 4;
-				mso-font-charset:0;
-				mso-generic-font-family:roman;
-				mso-font-pitch:variable;
-				mso-font-signature:-536869121 1107305727 33554432 0 415 0;
 			}
 			@font-face {
 				font-family:Aptos;
 				panose-1:2 11 0 4 2 2 2 2 2 4;
-				mso-font-charset:0;
-				mso-generic-font-family:swiss;
-				mso-font-pitch:variable;
-				mso-font-signature:536871559 3 0 0 415 0;
 			}
 			body, html {
-				font-family: Aptos, sans-serif;
+				font-family: Aptos, Arial, "Cambria Math", sans-serif;
 			}
 			.header {
 				font-weight: bold;
@@ -79,7 +71,7 @@ export const HEADER = (title?: string) =>
 			}
 			.underline {
 				border-bottom: 5px solid black;
-				0 0 0.3rem 0
+				margin: 0 0 0.3rem 0;
 			}
 			.email-info {
 				width: 100%;
