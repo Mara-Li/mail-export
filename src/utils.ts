@@ -1,7 +1,7 @@
 import type { Readable } from "node:stream";
 import { format } from "date-fns";
 import dedent from "dedent";
-import type { MailAddress } from "./interface";
+import type { MailAddress } from "./types/interface.js";
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export async function stream2Buffer(stream: Readable): Promise<any> {

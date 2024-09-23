@@ -4,12 +4,9 @@ import MsgReader, { type FieldsData } from "@kenjiuno/msgreader";
 import * as iconv from "iconv-lite";
 import { JSDOM } from "jsdom";
 import * as rtfParser from "rtf-stream-parser";
-import type {
-	Header,
-	IMsg,
-	MessageFieldData,
-	ParseOptions,
-} from "./interface.js";
+import type { IMsg } from "./types/Parser.js";
+import type { Header, MessageFieldData } from "./types/interface.js";
+import type { MessageOptions } from "./types/options.js";
 import {
 	END,
 	HEADER,
@@ -27,8 +24,8 @@ import {
 export class MessageParser implements IMsg {
 	fileReadStream: Readable;
 	parsedMail!: MessageFieldData;
-	options?: ParseOptions;
-	private constructor(fileReadStream: Readable, options?: ParseOptions) {
+	options?: MessageOptions;
+	private constructor(fileReadStream: Readable, options?: MessageOptions) {
 		this.fileReadStream = fileReadStream;
 		this.options = options;
 	}
@@ -41,9 +38,9 @@ export class MessageParser implements IMsg {
 	 */
 	public static async init(
 		fileReadStream: Readable,
-		options?: ParseOptions,
+		options?: MessageOptions,
 	): Promise<MessageParser> {
-		return await new MessageParser(fileReadStream).parse();
+		return await new MessageParser(fileReadStream, options).parse();
 	}
 
 	private async parse() {
@@ -128,7 +125,7 @@ export class MessageParser implements IMsg {
 		return this.parsedMail.htmlString;
 	}
 
-	getAsHtml(options?: ParseOptions) {
+	getAsHtml(options?: MessageOptions) {
 		if (options) this.options = options;
 		const exclude = this.options?.excludeHeader;
 

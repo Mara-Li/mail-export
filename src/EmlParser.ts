@@ -7,7 +7,9 @@ import {
 	simpleParser,
 } from "mailparser";
 import { extension } from "mime-types";
-import type { Header, IEml, MailAddress, ParseOptions } from "./interface.js";
+import type { IEml } from "./types/Parser.js";
+import type { Header, MailAddress } from "./types/interface.js";
+import type { EmlOptions } from "./types/options.js";
 import {
 	END,
 	HEADER,
@@ -23,10 +25,10 @@ import {
 
 export class EmlParser implements IEml {
 	fileReadStream: Readable;
-	options?: ParseOptions;
+	options?: EmlOptions;
 	parsedMail!: ParsedMail;
 
-	private constructor(fileReadStream: Readable, options?: ParseOptions) {
+	private constructor(fileReadStream: Readable, options?: EmlOptions) {
 		this.fileReadStream = fileReadStream;
 		this.options = options;
 	}
@@ -39,7 +41,7 @@ export class EmlParser implements IEml {
 	 */
 	public static async init(
 		fileReadStream: Readable,
-		options?: ParseOptions,
+		options?: EmlOptions,
 	): Promise<EmlParser> {
 		return await new EmlParser(fileReadStream, options).parse();
 	}
@@ -145,7 +147,7 @@ export class EmlParser implements IEml {
 		return htmlString;
 	}
 
-	async getAsHtml(options?: ParseOptions): Promise<string | undefined> {
+	async getAsHtml(options?: EmlOptions): Promise<string | undefined> {
 		if (options) this.options = options;
 		const exclude = this.options?.excludeHeader;
 		const dateMail = this.parsedMail.date
@@ -223,12 +225,9 @@ export class EmlParser implements IEml {
 		);
 	}
 
-	getEmbedded(options?: ParseOptions): Attachment[] {
-		if (options) this.options = options;
-		if (this.options?.ignoreEmbedded)
-			return this.parsedMail.attachments.filter(
-				(att) => att.contentDisposition !== "attachment",
-			);
-		return this.parsedMail.attachments;
+	getEmbedded(): Attachment[] {
+		return this.parsedMail.attachments.filter(
+			(att) => att.contentDisposition !== "attachment",
+		);
 	}
 }

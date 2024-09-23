@@ -57,10 +57,7 @@ It will successfully download the attachments to the current directory.
 ---
 # Library
 ## Interfaces
-### ParseOptions 
-- **`ignoreEmbedded`** (optional, `boolean`)
-  - **Description**: Ignores embedded attachments while parsing email EML attachments.
-
+### ParseOptions
 - **`highlightKeywords`** (optional, `string[]`)
   - **Description**: Highlights specific keywords in the email HTML content using the `<mark></mark>` HTML tag.
   - **Example**: If you provide `['foo', 'bar']`, the keywords `foo` and `bar` will be highlighted in the email HTML content.
@@ -68,6 +65,15 @@ It will successfully download the attachments to the current directory.
 - **`highlightCaseSensitive`** (optional, `boolean`)
   - **Description**: Specifies whether the keyword highlighting is case-sensitive.
 
+#### EmlOptions
+Includes all from `ParseOptions` and adds the following:
+- **`ignoreEmbedded`** (optional, `boolean`)
+  - **Description**: Ignores embedded attachments while parsing email EML attachments.
+- **`excludeHeader`** (optional, `Partial<ExcludeHeaderEml>`)
+  - **Description**: Allows modification of the header in the resulting PDF/HTML output.
+
+#### MessageOptions
+Includes all from `ParseOptions` and adds the following:
 - **`excludeHeader`** (optional, `Partial<ExcludeHeader>`)
   - **Description**: Allows modification of the header in the resulting PDF/HTML output.
 
@@ -97,9 +103,10 @@ The `ExcludeHeader` type specifies options for excluding certain headers from th
 - **`attachments`** (`boolean`)
   - **Description**: Exclude **all** attachments from the HTML output.
 
+#### ExcludeHeaderEml
+Only applicable for EML files.
 - **`embeddedAttachments`** (`boolean`)
-  - **Description**: Exclude only embedded attachments from the HTML output. 
-  - **Warning**: This option is only applicable for EML files.
+  - **Description**: Exclude only **embedded attachments** from the HTML output.
 
 ### MessageFields
 The `MessageFieldData` interface is an upgraded version of the [`FieldsData` interface from `msgreader`](https://hiraokahypertools.github.io/msgreader/typedoc/interfaces/MsgReader.FieldsData.html). It is specifically used for handling data in the MSG format.
@@ -214,6 +221,13 @@ The `EmlParser` and `MessageParser` implements the interface `Parser`.
   - **Description**: The options used for parsing the email file.
 
 ### Methods
+
+> [!NOTE]
+> `ParseOptions` referee to `EmlOptions` for `EmlParser` and `MessageOptions` for `MessageParser`.
+> ```ts
+> type ParseOptions = EmlOptions | MessageOptions;
+> ```
+
 - **`init(fileReadStream?: Readable, options?: ParseOptions): Promise<EmlParser | MessageParser>`**
   - **Description**: The primary function for parsing the email file. Converts the readable stream into a parsed email, allowing for content and header extraction.
   - **Parameters**:
@@ -242,10 +256,8 @@ The `EmlParser` and `MessageParser` implements the interface `Parser`.
 
 ### EmlParser methods
 The `EmlParser` provides additional methods for parsing EML files.
-- **`getEmbedded(options?: ParseOptions): Attachment[]**
+- **`getEmbedded(): Attachment[]**
   - **Description**: Retrieves the embedded attachments from the EML file.
-  - **Parameters**:
-    - `options` (optional, `ParseOptions`): Options to modify the parsing behavior.
   - **Returns**: An array of `Attachment` objects representing the embedded attachments.
 
 ## Convert
