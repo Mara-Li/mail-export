@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.0.0](https://github.com/Mara-Li/Archivette/compare/v1.3.0...v2.0.0) (2024-09-23)
+
+
+### ⚠ BREAKING CHANGES
+
+*  - Constructor was made private
+ - Parser needs to be loaded as `await EmlParser.init(file, options)`
+ - getAsHtml needs to be awaited only in MessageParser
+ - Options can be overridden only in getAsHtml and getEmbedded
+
+### Features
+
+* refactor ([07f1e7f](https://github.com/Mara-Li/Archivette/commit/07f1e7faf2a390eebc27fb3ee9c7e438925d470e))
+
 ## [1.3.0](https://github.com/Mara-Li/Archivette/compare/v1.2.5...v1.3.0) (2024-09-13)
 
 
