@@ -1,14 +1,14 @@
 import type { Readable } from "node:stream";
 import { decompressRTF } from "@kenjiuno/decompressrtf";
-import MsgReader from "@kenjiuno/msgreader";
+import MsgReader, { type FieldsData } from "@kenjiuno/msgreader";
 import * as iconv from "iconv-lite";
 import { JSDOM } from "jsdom";
 import * as rtfParser from "rtf-stream-parser";
 import type {
 	Header,
+	IMsg,
 	MessageFieldData,
 	ParseOptions,
-	Parser,
 } from "./interface.js";
 import {
 	END,
@@ -24,16 +24,30 @@ import {
 	to,
 } from "./utils.js";
 
-export class MessageParser implements Parser {
+export class MessageParser implements IMsg {
 	fileReadStream: Readable;
-	//@ts-ignore
-	parsedMail: MessageFieldData;
-	constructor(fileReadStream: Readable) {
+	parsedMail!: MessageFieldData;
+	options?: ParseOptions;
+	private constructor(fileReadStream: Readable, options?: ParseOptions) {
 		this.fileReadStream = fileReadStream;
+		this.options = options;
 	}
 
-	async parse(options?: ParseOptions) {
-		if (this.parsedMail) return this.parsedMail;
+	/**
+	 * Initialize the MessageParser
+	 * @param fileReadStream {Readable} - The file to parse
+	 * @param options {ParseOptions} - Options to modify the parsing behavior
+	 * @returns {Promise<MessageParser>} - The EmlParser instance
+	 */
+	public static async init(
+		fileReadStream: Readable,
+		options?: ParseOptions,
+	): Promise<MessageParser> {
+		return await new MessageParser(fileReadStream).parse();
+	}
+
+	private async parse() {
+		const messageParser = new MessageParser(this.fileReadStream, this.options);
 		const buffer = await stream2Buffer(this.fileReadStream);
 		const emailData = new MsgReader(buffer);
 		const emailFieldsData = emailData.getFileData() as MessageFieldData;
@@ -52,14 +66,14 @@ export class MessageParser implements Parser {
 			.text.toString();
 		const domParser = new JSDOM(emailFieldsData.htmlString);
 		emailFieldsData.htmlString = domParser.window.document.body.innerHTML;
-		if (options?.highlightKeywords) {
-			if (!Array.isArray(options.highlightKeywords))
+		if (this.options?.highlightKeywords) {
+			if (!Array.isArray(this.options.highlightKeywords))
 				throw new Error(
 					"err: highlightKeywords is not an array, expected: String[]",
 				);
 			let flags = "gi";
-			if (options.highlightCaseSensitive) flags = "g";
-			for (const keyword of options.highlightKeywords) {
+			if (this.options?.highlightCaseSensitive) flags = "g";
+			for (const keyword of this.options.highlightKeywords) {
 				emailFieldsData.htmlString = emailFieldsData.htmlString?.replace(
 					new RegExp(keyword, flags),
 					(str) => `<mark>${str}</mark>`,
@@ -67,21 +81,20 @@ export class MessageParser implements Parser {
 			}
 		}
 		emailFieldsData.compressedRtf = undefined;
-		this.parsedMail = emailFieldsData;
-		return emailFieldsData;
+		messageParser.parsedMail = emailFieldsData;
+		return messageParser;
 	}
 
-	async getHeader(options?: ParseOptions) {
-		const result = await this.parse(options);
+	getHeader() {
 		const header: Header = {
-			subject: result.subject,
+			subject: this.parsedMail.subject,
 			from: [
 				{
-					name: result.senderName,
-					address: result.senderEmail,
+					name: this.parsedMail.senderName,
+					address: this.parsedMail.senderEmail,
 				},
 			],
-			bcc: result.recipients
+			bcc: this.parsedMail.recipients
 				?.filter((recipient) => recipient.recipType === "bcc")
 				.map((recipient) => {
 					return {
@@ -89,7 +102,7 @@ export class MessageParser implements Parser {
 						address: recipient.email,
 					};
 				}),
-			cc: result.recipients
+			cc: this.parsedMail.recipients
 				?.filter((recipient) => recipient.recipType === "cc")
 				.map((recipient) => {
 					return {
@@ -97,7 +110,7 @@ export class MessageParser implements Parser {
 						address: recipient.email,
 					};
 				}),
-			to: result.recipients
+			to: this.parsedMail.recipients
 				?.filter((recipient) => recipient.recipType === "to")
 				.map((recipient) => {
 					return {
@@ -105,33 +118,31 @@ export class MessageParser implements Parser {
 						address: recipient.email,
 					};
 				}),
-			date: result.messageDeliveryTime,
-			attachments: result.attachments as MessageFieldData[],
+			date: this.parsedMail.messageDeliveryTime,
+			attachments: this.parsedMail.attachments as MessageFieldData[],
 		};
 		return header;
 	}
 
-	async getBodyHtml(options?: ParseOptions) {
-		const result = await this.parse(options);
-		return result.htmlString;
+	getBodyHtml() {
+		return this.parsedMail.htmlString;
 	}
 
-	async getAsHtml(options?: ParseOptions) {
-		const result = await this.parse(options);
-		if (!result) throw new Error("No message found");
-		const exclude = options?.excludeHeader;
+	getAsHtml(options?: ParseOptions) {
+		if (options) this.options = options;
+		const exclude = this.options?.excludeHeader;
 
 		const fromSpan = !exclude?.from
-			? `<a href=\"mailto:${result.senderEmail ?? result.lastModifierName}\" class=\"mp_address_email\">${result.senderEmail ?? result.lastModifierName}</a></span>`
+			? `<a href=\"mailto:${this.parsedMail.senderEmail ?? this.parsedMail.lastModifierName}\" class=\"mp_address_email\">${this.parsedMail.senderEmail ?? this.parsedMail.lastModifierName}</a></span>`
 			: undefined;
 		const dateSpan =
-			result.messageDeliveryTime && !exclude?.date
-				? new Date(result.messageDeliveryTime)
+			this.parsedMail.messageDeliveryTime && !exclude?.date
+				? new Date(this.parsedMail.messageDeliveryTime)
 				: new Date();
-		let headerHtml = `${HEADER(result.subject ?? "Email", options?.customStyle)}${from(fromSpan)}${date(dateSpan)}`;
+		let headerHtml = `${HEADER(this.parsedMail.subject ?? "Email", this.options?.customStyle)}${from(fromSpan)}${date(dateSpan)}`;
 
 		if (!exclude?.to) {
-			const toRecipients = result.recipients
+			const toRecipients = this.parsedMail.recipients
 				?.filter((recipient) => recipient.recipType === "to")
 				.map((recipient) => {
 					return { name: recipient.name, address: recipient.email };
@@ -140,7 +151,7 @@ export class MessageParser implements Parser {
 			headerHtml += to(toHtml);
 		}
 		if (!exclude?.cc) {
-			const ccRecipients = result.recipients
+			const ccRecipients = this.parsedMail.recipients
 				?.filter((recipient) => recipient.recipType === "cc")
 				.map((recipient) => {
 					return { name: recipient.name, address: recipient.email };
@@ -149,7 +160,7 @@ export class MessageParser implements Parser {
 			headerHtml += cc(ccHtml);
 		}
 		if (!exclude?.bcc) {
-			const bccRecipients = result.recipients
+			const bccRecipients = this.parsedMail.recipients
 				?.filter((recipient) => recipient.recipType === "bcc")
 				.map((recipient) => {
 					return { name: recipient.name, address: recipient.email };
@@ -159,12 +170,12 @@ export class MessageParser implements Parser {
 		}
 
 		if (!exclude?.attachments) {
-			const attachmentsHtml = result?.attachments
-				? (result.attachments as MessageFieldData[])
+			const attachmentsHtml = this.parsedMail?.attachments
+				? (this.parsedMail.attachments as MessageFieldData[])
 						.map((att) => {
 							let fileName = att.fileName;
 							if (!fileName) {
-								const index = result.attachments?.indexOf(att);
+								const index = this.parsedMail.attachments?.indexOf(att);
 								fileName = `attachment_${index}`;
 							}
 							if (att.content)
@@ -174,12 +185,11 @@ export class MessageParser implements Parser {
 				: undefined;
 			headerHtml += attachments(attachmentsHtml);
 		}
-		if (!exclude?.subject) headerHtml += subject(result.subject);
-		headerHtml += `${END}<p>${result?.htmlString ?? ""}</p>`;
+		if (!exclude?.subject) headerHtml += subject(this.parsedMail.subject);
+		headerHtml += `${END}<p>${this.parsedMail?.htmlString ?? ""}</p>`;
 		return headerHtml;
 	}
-	async getAttachments(options?: ParseOptions) {
-		const result = await this.parse(options);
-		return result.attachments as MessageFieldData[];
+	getAttachments() {
+		return this.parsedMail.attachments as MessageFieldData[];
 	}
 }

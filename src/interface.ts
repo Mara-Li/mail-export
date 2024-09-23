@@ -1,6 +1,8 @@
 import type { Readable } from "node:stream";
 import type { FieldsData } from "@kenjiuno/msgreader";
 import type { Attachment, ParsedMail } from "mailparser";
+import type { EmlParser } from "./EmlParser";
+import type { MessageParser } from "./MessageParser";
 
 export interface ParseOptions {
 	/**
@@ -80,41 +82,51 @@ export interface Header {
 	attachments?: Attachment[] | MessageFieldData[];
 }
 
-export interface Parser {
+interface Parser {
 	fileReadStream: Readable;
 	parsedMail: MessageFieldData | ParsedMail;
-	/**
-	 * Primary function, allow to convert the readable into a parsed Mail to allow extracting the content, HEADER...
-	 * @note If there already a parsedMail, it will return it directly without re-parsing the file
-	 * @param options {ParseOptions} - Options to modify the parsing behavior
-	 */
-	parse(
-		options?: ParseOptions,
-	): Promise<MessageFieldData | ParsedMail | undefined>;
+	options?: ParseOptions;
+
 	/**
 	 * Parse the HEADER of the mail, including attachments
-	 * @param options {ParseOptions} - Options to modify the parsing behavior
 	 * @returns {Header} - Header of the mail
 	 */
-	getHeader(options?: ParseOptions): Promise<Header | undefined>;
+
+	getHeader(): Header | undefined;
 	/**
 	 * Get the attachments and their contents
-	 * @param options {ParseOptions} - Options to modify the parsing behavior
 	 */
-	getAttachments(
-		options?: ParseOptions,
-	): Promise<MessageFieldData[] | Attachment[]>;
+	getAttachments(): MessageFieldData[] | Attachment[];
+
+	/**
+	 * Only return the body of the mail, without formatting the HEADER fields
+	 * @returns {string} - The body of the mail as a html string
+	 */
+	getBodyHtml(): string | undefined;
+}
+
+export interface IEml extends Parser {
+	/**
+	 * Allow to get only the embedded attachments of a eml file
+	 * @param options {ParseOptions} - Options to modify the parsing behavior
+	 * @returns {Attachment[]} - The embedded attachments
+	 */
+	getEmbedded(options?: ParseOptions): Attachment[];
+	/**
+	 * Return the content of the mail as a html string, including HEADER and attachments as field in the html
+	 * Attachment can be download if the html is directly written in a file
+	 * @param {ParseOptions} options  - Options to modify the parsing behavior
+	 * @returns {Promise<string|undefined>} - The mail as a html string
+	 */
+	getAsHtml(options?: ParseOptions): Promise<string | undefined>;
+}
+
+export interface IMsg extends Parser {
 	/**
 	 * Return the content of the mail as a html string, including HEADER and attachments as field in the html
 	 * Attachment can be download if the html is directly written in a file
 	 * @param {ParseOptions} options  - Options to modify the parsing behavior
 	 * @returns {string} - The mail as a html string
 	 */
-	getAsHtml(options?: ParseOptions): Promise<string | undefined>;
-	/**
-	 * Only return the body of the mail, without formatting the HEADER fields
-	 * @param options {ParseOptions} - Options to modify the parsing behavior
-	 * @returns {string} - The body of the mail as a html string
-	 */
-	getBodyHtml(options?: ParseOptions): Promise<string | undefined>;
+	getAsHtml(options?: ParseOptions): string | undefined;
 }

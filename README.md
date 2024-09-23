@@ -25,7 +25,7 @@ import fs from "node:fs"
 
 const filePath = normalize("test_SA_3.eml"); //can also be a .msg file
 const readable = fs.createReadStream(filePath)
-const emlParser = new EmlParser(readable);
+const emlParser = await EmlParser.init(readable);
 const html = await emailParser.getAsHtml();
 if (!html) throw new Error("No message found");
 const converter = new Convert(html);
@@ -40,8 +40,8 @@ import { EmlParser, Convert } from "mail-export";
 
 const filePath = normalize("test_SA.eml"); //or .msg file
 const email = createReadStream(filePath);
-const emailParser = new EmlParser(email);
-const attachments = await emailParser.getAttachments({
+const emailParser = EmlParser.init(email);
+const attachments = emailParser.getAttachments({
 		ignoreEmbedded: false, //does nothing for .msg files
 	});
 if (!attachments) throw new Error("No attachments found");
@@ -192,13 +192,13 @@ The `EmlParser` and `MessageParser` implements the interface `Parser`.
 	```typescript
 	import { EmlParser } from "mail-export";
 	const readableStream = createReadStream("email.eml");
-	const emlParser = new EmlParser(readableStream);
+	const emlParser = await EmlParser.init(readableStream);
 	```
 - **`MessageParser`**: Used to parse MSG files.
 	```typescript
 	import { MessageParser } from "mail-export";
 	const readableStream = createReadStream("email.msg");
-	const messageParser = new MessageParser(readableStream);
+	const messageParser = await MessageParser.init(readableStream);
 	```
 
 
@@ -210,44 +210,42 @@ The `EmlParser` and `MessageParser` implements the interface `Parser`.
   - **Description**: The parsed email data, which could be in the form of `MessageFieldData` or `ParsedMail`.
   - **MessageFieldData**: Represents the parsed email data for MSG files.
   - **ParsedMail**: Represents the parsed email data for EML files.
+- **`options`** (`ParseOptions | undefined`)
+  - **Description**: The options used for parsing the email file.
 
 ### Methods
-- **`parse(options?: ParseOptions): Promise<MessageFieldData | ParsedMail | undefined>`**
+- **`init(fileReadStream?: Readable, options?: ParseOptions): Promise<EmlParser | MessageParser>`**
   - **Description**: The primary function for parsing the email file. Converts the readable stream into a parsed email, allowing for content and header extraction.
-  - **Note**: If `parsedMail` already exists, this method returns it directly without re-parsing the file.
   - **Parameters**:
     - `options` (optional, `ParseOptions`): Options to modify the parsing behavior.
+    - `fileReadStream` (optional, `Readable`): The readable stream of the email file to be parsed.
 
-- **`getHeader(options?: ParseOptions): Promise<Header | undefined>`**
+- **`getHeader(): Header | undefined`**
   - **Description**: Parses and returns the header of the email, including any attachments.
   - **Parameters**:
-    - `options` (optional, `ParseOptions`): Options to modify the parsing behavior.
   - **Returns**: A `Header` object containing the email's header information.
 
-- **`getAttachments(options?: ParseOptions): Promise<MessageFieldData[] | Attachment[]>`**
+- **`getAttachments(): MessageFieldData[] | Attachment[]>`**
   - **Description**: Retrieves the attachments and their contents from the email.
-  - **Parameters**:
-    - `options` (optional, `ParseOptions`): Options to modify the parsing behavior.
   - **Returns**: An array of `MessageFieldData` or `Attachment` objects representing the email's attachments.
 
-- **`getAsHtml(options?: ParseOptions): Promise<string | undefined>`**
+- **`getAsHtml(options?: ParseOptions): Promise<string | undefined> | string | undefined`**
   - **Description**: Returns the email content as an HTML string, including the header and attachments. Attachments can be downloaded if the HTML is directly written to a file.
   - **Parameters**:
     - `options` (optional, `ParseOptions`): Options to modify the parsing behavior.
   - **Returns**: The email as an HTML string.
+  - **Warning** : The function need to be awaited for EML files.
 
-- **`getBodyHtml(options?: ParseOptions): Promise<string | undefined>`**
+- **`getBodyHtml(): string | undefined`**
   - **Description**: Returns the email content as an HTML string, excluding the header and attachments.
-  - **Parameters**:
-	- `options` (optional, `ParseOptions`): Options to modify the parsing behavior.
   - **Returns**: The email body as an HTML string.
 
 ### EmlParser methods
 The `EmlParser` provides additional methods for parsing EML files.
-- **`getEmbedded(options?: ParseOptions): Promise<Attachment[]>**
+- **`getEmbedded(options?: ParseOptions): Attachment[]**
   - **Description**: Retrieves the embedded attachments from the EML file.
   - **Parameters**:
-	  - `options` (optional, `ParseOptions`): Options to modify the parsing behavior.
+    - `options` (optional, `ParseOptions`): Options to modify the parsing behavior.
   - **Returns**: An array of `Attachment` objects representing the embedded attachments.
 
 ## Convert

@@ -7,7 +7,7 @@ import {
 	simpleParser,
 } from "mailparser";
 import { extension } from "mime-types";
-import type { Header, MailAddress, ParseOptions, Parser } from "./interface.js";
+import type { Header, IEml, MailAddress, ParseOptions } from "./interface.js";
 import {
 	END,
 	HEADER,
@@ -21,17 +21,33 @@ import {
 	to,
 } from "./utils.js";
 
-export class EmlParser implements Parser {
-	parsedMail!: ParsedMail;
+export class EmlParser implements IEml {
 	fileReadStream: Readable;
-	constructor(fileReadStream: Readable) {
+	options?: ParseOptions;
+	parsedMail!: ParsedMail;
+
+	private constructor(fileReadStream: Readable, options?: ParseOptions) {
 		this.fileReadStream = fileReadStream;
+		this.options = options;
 	}
-	async parse(options?: ParseOptions) {
-		if (this.parsedMail) return this.parsedMail;
+
+	/**
+	 * Initialize the EmlParser
+	 * @param fileReadStream {Readable} - The file to parse
+	 * @param options {ParseOptions} - Options to modify the parsing behavior
+	 * @returns {Promise<EmlParser>} - The EmlParser instance
+	 */
+	public static async init(
+		fileReadStream: Readable,
+		options?: ParseOptions,
+	): Promise<EmlParser> {
+		return await new EmlParser(fileReadStream, options).parse();
+	}
+
+	private async parse() {
 		const result = await simpleParser(this.fileReadStream);
 		if (result) {
-			if (options?.ignoreEmbedded) {
+			if (this.options?.ignoreEmbedded) {
 				result.attachments = result.attachments.filter(
 					(att) => att.contentDisposition === "attachment",
 				);
@@ -50,15 +66,15 @@ export class EmlParser implements Parser {
 				styles.forEach((style) => style.remove());
 				result.textAsHtml = domParser.body.innerHTML;
 			}
-			if (options?.highlightKeywords) {
-				if (!Array.isArray(options.highlightKeywords))
+			if (this.options?.highlightKeywords) {
+				if (!Array.isArray(this.options.highlightKeywords))
 					throw new Error(
 						"err: highlightKeywords is not an array, expected: String[]",
 					);
 				let flags = "gi";
-				if (options.highlightCaseSensitive) flags = "g";
+				if (this.options.highlightCaseSensitive) flags = "g";
 
-				for (const keyword of options.highlightKeywords) {
+				for (const keyword of this.options.highlightKeywords) {
 					if (result.html) {
 						result.html = result.html.replace(
 							new RegExp(keyword, flags),
@@ -72,9 +88,11 @@ export class EmlParser implements Parser {
 					}
 				}
 			}
-			this.parsedMail = result;
-			return result;
+			const emlParser = new EmlParser(this.fileReadStream, this.options);
+			emlParser.parsedMail = result;
+			return emlParser;
 		}
+		throw new Error("No message found");
 	}
 
 	private createAddress(
@@ -96,34 +114,30 @@ export class EmlParser implements Parser {
 		return mails;
 	}
 
-	async getHeader(options?: ParseOptions): Promise<Header | undefined> {
-		const result = await this.parse(options);
-		if (!result) return undefined;
-		const bcc = this.createAddress(result.bcc);
-		const cc = this.createAddress(result.cc);
-		const to = this.createAddress(result.to);
-		const replyTo = this.createAddress(result.replyTo);
-		const attachments = await this.getAttachments(options);
+	getHeader(): Header | undefined {
+		const bcc = this.createAddress(this.parsedMail.bcc);
+		const cc = this.createAddress(this.parsedMail.cc);
+		const to = this.createAddress(this.parsedMail.to);
+		const replyTo = this.createAddress(this.parsedMail.replyTo);
+		const attachments = this.getAttachments();
 		return {
-			subject: result.subject,
-			from: result.from?.value,
+			subject: this.parsedMail.subject,
+			from: this.parsedMail.from?.value,
 			bcc,
 			cc,
 			to,
-			date: result.date,
+			date: this.parsedMail.date,
 			replyTo,
 			attachments,
 		} as Header;
 	}
 
-	async getBodyHtml(options?: ParseOptions): Promise<string | undefined> {
-		const result = await this.parse(options);
-		if (!result) return undefined;
+	getBodyHtml(): string | undefined {
 		const replacements = {
 			"’": "'",
 			"–": "&#9472;",
 		};
-		let htmlString = result.html || result.textAsHtml;
+		let htmlString = this.parsedMail.html || this.parsedMail.textAsHtml;
 		if (!htmlString) return undefined;
 		for (const key in replacements) {
 			htmlString = htmlString.replace(new RegExp(key, "g"), key);
@@ -131,38 +145,39 @@ export class EmlParser implements Parser {
 		return htmlString;
 	}
 
-	async getAsHtml(parseOptions?: ParseOptions): Promise<string | undefined> {
-		const exclude = parseOptions?.excludeHeader;
-		const result = await this.parse(parseOptions);
-		if (!result) throw new Error("No message found");
-		const dateMail = result.date ? new Date(result.date) : new Date();
+	async getAsHtml(options?: ParseOptions): Promise<string | undefined> {
+		if (options) this.options = options;
+		const exclude = this.options?.excludeHeader;
+		const dateMail = this.parsedMail.date
+			? new Date(this.parsedMail.date)
+			: new Date();
 		const fromAddress = !exclude?.from
-			? htmlAddress(this.createAddress(result.from))
+			? htmlAddress(this.createAddress(this.parsedMail.from))
 			: undefined;
 		const dateHeader = !exclude?.date ? date(dateMail) : undefined;
 
-		let headerHtml = `${HEADER(result.subject ?? "Email", parseOptions?.customStyle)}${from(fromAddress)}${dateHeader}`;
+		let headerHtml = `${HEADER(this.parsedMail.subject ?? "Email", this.options?.customStyle)}${from(fromAddress)}${dateHeader}`;
 		if (!exclude?.to) {
-			const toAdress = this.createAddress(result.to);
+			const toAdress = this.createAddress(this.parsedMail.to);
 			const htmlTo = htmlAddress(toAdress);
 			headerHtml += to(htmlTo);
 		}
 		if (!exclude?.cc) {
-			const ccAddress = this.createAddress(result.cc);
+			const ccAddress = this.createAddress(this.parsedMail.cc);
 			const htmlCc = htmlAddress(ccAddress);
 			headerHtml += cc(htmlCc);
 		}
 		if (!exclude?.bcc) {
-			const bccAddress = this.createAddress(result.bcc);
+			const bccAddress = this.createAddress(this.parsedMail.bcc);
 			const htmlBcc = htmlAddress(bccAddress);
 			headerHtml += bcc(htmlBcc);
 		}
 		if (!exclude?.attachments) {
 			const attachmentsFiles = exclude?.embeddedAttachments
-				? result.attachments.filter(
+				? this.parsedMail.attachments.filter(
 						(att) => att.contentDisposition === "attachment",
 					)
-				: result.attachments;
+				: this.parsedMail.attachments;
 
 			const mappedAttachments = await Promise.all(
 				attachmentsFiles.map(async (att) => {
@@ -171,14 +186,17 @@ export class EmlParser implements Parser {
 						const type = extension(att.contentType);
 						if (type === "eml") {
 							const content = att.content;
-							const parser = new EmlParser(Readable.from(content));
-							const header = await parser.getHeader();
+							const parser = await EmlParser.init(
+								Readable.from(content),
+								this.options,
+							);
+							const header = parser.getHeader();
 							filename = `${header?.subject ?? "sample"}.eml`;
 						} else if (type) {
-							const index = result.attachments.indexOf(att);
+							const index = this.parsedMail.attachments.indexOf(att);
 							if (type) filename = `attachment_${index}.${type}`;
 						} else {
-							const index = result.attachments.indexOf(att);
+							const index = this.parsedMail.attachments.indexOf(att);
 							filename = `attachment_${index}`;
 						}
 					}
@@ -188,37 +206,29 @@ export class EmlParser implements Parser {
 			const attachmentsHtml = mappedAttachments.join("<br>");
 			headerHtml += attachments(attachmentsHtml);
 		}
-		if (result.replyTo && !exclude?.replyTo) {
-			const replyToAddress = this.createAddress(result.replyTo);
+		if (this.parsedMail.replyTo && !exclude?.replyTo) {
+			const replyToAddress = this.createAddress(this.parsedMail.replyTo);
 			const htmlReplyTo = htmlAddress(replyToAddress);
 			headerHtml += to(htmlReplyTo);
 		}
-		if (!exclude?.subject) headerHtml += subject(result.subject);
-		const bodyHtml = await this.getBodyHtml(parseOptions);
+		if (!exclude?.subject) headerHtml += subject(this.parsedMail.subject);
+		const bodyHtml = this.getBodyHtml();
 		if (bodyHtml) headerHtml += `${END}<p>${bodyHtml}</p>`;
 		return headerHtml;
 	}
 
-	async getAttachments(options?: ParseOptions): Promise<Attachment[]> {
-		const result = await this.parse(options);
-		if (!result) return [];
-		return result.attachments.filter(
+	getAttachments(): Attachment[] {
+		return this.parsedMail.attachments.filter(
 			(att) => att.contentDisposition === "attachment",
 		);
 	}
 
-	/**
-	 * Allow to get only the embedded attachments of a eml file
-	 * @param options {ParseOptions} - Options to modify the parsing behavior
-	 * @returns {Promise<Attachment[]>} - The embedded attachments
-	 */
-	async getEmbedded(options?: ParseOptions): Promise<Attachment[]> {
-		const result = await this.parse(options);
-		if (!result) return [];
-		if (options?.ignoreEmbedded)
-			return result.attachments.filter(
+	getEmbedded(options?: ParseOptions): Attachment[] {
+		if (options) this.options = options;
+		if (this.options?.ignoreEmbedded)
+			return this.parsedMail.attachments.filter(
 				(att) => att.contentDisposition !== "attachment",
 			);
-		return result.attachments;
+		return this.parsedMail.attachments;
 	}
 }
