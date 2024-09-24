@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.0.3](https://github.com/Mara-Li/Archivette/compare/v2.0.2...v2.0.3) (2024-09-24)
+
+
+### Bug Fixes
+
+* add options for getAttachments and refactor class for Msg & Eml ([0657ad1](https://github.com/Mara-Li/Archivette/commit/0657ad1e3c06d3bd1dab66204e520d6fb783cf03))
+
 ## [2.0.2](https://github.com/Mara-Li/Archivette/compare/v2.0.1...v2.0.2) (2024-09-24)
 
 ## [2.0.1](https://github.com/Mara-Li/Archivette/compare/v2.0.0...v2.0.1) (2024-09-23)
