@@ -1,6 +1,6 @@
 {
 	"name": "mail-export",
-	"version": "2.0.3",
+	"version": "2.0.4",
 	"main": "./dist/index.js",
 	"module": "./dist/index.mjs",
 	"description": "Parse .eml and .msg files or convert to pdf. Extract headers and attachments from .eml and msg files. Natively in typescript, support mjs & cjs!",
