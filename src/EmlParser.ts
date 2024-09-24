@@ -219,13 +219,10 @@ export class EmlParser implements IEml {
 		return headerHtml;
 	}
 
-	getAttachments(options?: EmlOptions): Attachment[] {
-		if (options) this.options = options;
-		if (options?.ignoreEmbedded)
-			return this.parsedMail.attachments.filter(
-				(att) => att.contentDisposition === "attachment",
-			);
-		return this.parsedMail.attachments;
+	getAttachments(): Attachment[] {
+		return this.parsedMail.attachments.filter(
+			(att) => att.contentDisposition === "attachment",
+		);
 	}
 
 	getEmbedded(): Attachment[] {

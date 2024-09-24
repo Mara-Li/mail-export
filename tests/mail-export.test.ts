@@ -16,7 +16,7 @@ describe("EML testing", async () => {
 		expect(html).toBeDefined();
 	});
 	test("List attachments", async () => {
-		const attachments = emlParser.getAttachments({ ignoreEmbedded: true });
+		const attachments = emlParser.getAttachments();
 		console.log(attachments.length);
 		expect(attachments).toBeDefined();
 	});

@@ -255,16 +255,9 @@ The `EmlParser` provides additional methods for parsing EML files.
 - **`getEmbedded(): Attachment[]**
   - **Description**: Retrieves the embedded attachments from the EML file.
   - **Returns**: An array of `Attachment` objects representing the embedded attachments.
-- **`getAttachments(options?: EmlOptions): Attachment[]`**
+- **`getAttachments(): MessageFieldData[] | Attachment[]`**
   - **Description**: Retrieves the attachments and their contents from the email.
-  - **Returns**: An array of `Attachment` objects representing the email's attachments.
-
-### MessageParser methods
-The `MessageParser` provides additional methods for parsing MSG files.
-- **`getAttachments(): MessageFieldData[]`**
-  - **Description**: Retrieves the attachments and their contents from the email.
-  - **Returns**: An array of `MessageFieldData` objects representing the email's attachments.
-
+  - **Returns**: An array of `MessageFieldData` or `Attachment` objects representing the email's attachments.
 
 ## Convert
 The `Convert` class provides methods to convert email content to PDF, buffer or Readable.
