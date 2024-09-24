@@ -6,17 +6,21 @@ import { EmlParser } from "../src";
 const inputs = path.normalize("tests/inputs");
 const output = path.normalize("tests/outputs");
 
-describe("EML testing", () => {
+describe("EML testing", async () => {
 	const file = fs.createReadStream(path.join(inputs, "EML", "test_SA.eml"));
+	const emlParser = await EmlParser.init(file);
 	test("EML to HTML", async () => {
-		const emlParser = await EmlParser.init(file);
 		const html = await emlParser.getAsHtml({
 			excludeHeader: { embeddedAttachments: true },
 		});
 		expect(html).toBeDefined();
 	});
+	test("List attachments", async () => {
+		const attachments = emlParser.getAttachments({ ignoreEmbedded: true });
+		console.log(attachments.length);
+		expect(attachments).toBeDefined();
+	});
 	test("convert to Buffer", async () => {
-		const emlParser = await EmlParser.init(file);
 		const html = await emlParser.getAsHtml({
 			excludeHeader: { embeddedAttachments: true },
 		});
@@ -27,7 +31,6 @@ describe("EML testing", () => {
 		expect(buffer).toBeDefined();
 	});
 	test("Output pdf", async () => {
-		const emlParser = await EmlParser.init(file);
 		const html = await emlParser.getAsHtml();
 		if (!html) throw "unexpected error";
 		const converted = new Convert(html);

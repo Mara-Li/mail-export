@@ -239,10 +239,6 @@ The `EmlParser` and `MessageParser` implements the interface `Parser`.
   - **Parameters**:
   - **Returns**: A `Header` object containing the email's header information.
 
-- **`getAttachments(): MessageFieldData[] | Attachment[]>`**
-  - **Description**: Retrieves the attachments and their contents from the email.
-  - **Returns**: An array of `MessageFieldData` or `Attachment` objects representing the email's attachments.
-
 - **`getAsHtml(options?: ParseOptions): Promise<string | undefined> | string | undefined`**
   - **Description**: Returns the email content as an HTML string, including the header and attachments. Attachments can be downloaded if the HTML is directly written to a file.
   - **Parameters**:
@@ -259,6 +255,16 @@ The `EmlParser` provides additional methods for parsing EML files.
 - **`getEmbedded(): Attachment[]**
   - **Description**: Retrieves the embedded attachments from the EML file.
   - **Returns**: An array of `Attachment` objects representing the embedded attachments.
+- **`getAttachments(options?: EmlOptions): Attachment[]`**
+  - **Description**: Retrieves the attachments and their contents from the email.
+  - **Returns**: An array of `Attachment` objects representing the email's attachments.
+
+### MessageParser methods
+The `MessageParser` provides additional methods for parsing MSG files.
+- **`getAttachments(): MessageFieldData[]`**
+  - **Description**: Retrieves the attachments and their contents from the email.
+  - **Returns**: An array of `MessageFieldData` objects representing the email's attachments.
+
 
 ## Convert
 The `Convert` class provides methods to convert email content to PDF, buffer or Readable.

@@ -16,10 +16,6 @@ interface Parser {
 	 */
 
 	getHeader(): Header | undefined;
-	/**
-	 * Get the attachments and their contents
-	 */
-	getAttachments(): MessageFieldData[] | Attachment[];
 
 	/**
 	 * Only return the body of the mail, without formatting the HEADER fields
@@ -29,6 +25,10 @@ interface Parser {
 }
 
 export interface IEml extends Parser {
+	/**
+	 * Get the attachments and their contents
+	 */
+	getAttachments(options?: EmlOptions): Attachment[];
 	/**
 	 * Allow to get only the embedded attachments of a eml file
 	 * @returns {Attachment[]} - The embedded attachments
@@ -51,4 +51,8 @@ export interface IMsg extends Parser {
 	 * @returns {string} - The mail as a html string
 	 */
 	getAsHtml(options?: ParseOptions): string | undefined;
+	/**
+	 * Get the attachments and their contents
+	 */
+	getAttachments(): MessageFieldData[];
 }
