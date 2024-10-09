@@ -5,6 +5,8 @@
 	"module": "./dist/index.mjs",
 	"description": "Parse .eml and .msg files or convert to pdf. Extract headers and attachments from .eml and msg files. Natively in typescript, support mjs & cjs!",
 	"private": false,
+	"repository": "github:Mara-Li/mail-export",
+	"homepage": "https://github.com/Mara-Li/mail-export#readme",
 	"scripts": {
 		"lint": "biome format --write src/",
 		"prebuild": "rimraf dist",
@@ -15,9 +17,7 @@
 	},
 	"type": "module",
 	"types": "./dist/types/index.d.ts",
-	"files": [
-		"dist"
-	],
+	"files": ["dist"],
 	"devDependencies": {
 		"@biomejs/biome": "1.8.3",
 		"rimraf": "^6.0.1",
