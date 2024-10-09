@@ -99,16 +99,18 @@ export function htmlAddress(addresses?: MailAddress[], emailStyle?: string) {
 	if (!addresses) return "";
 	const html: string[] = [];
 	for (const address of addresses) {
-		if (address.name && address.address)
+		if (address.name && address.address) {
 			if (emailStyle) {
-				emailStyle
-					.replace("{{name}}", address.name)
-					.replace("{{email}}", address.address);
-				html.push(emailStyle);
+				html.push(
+					emailStyle
+						.replace("{{name}}", address.name)
+						.replace("{{email}}", address.address),
+				);
 			} else
 				html.push(
 					`<a href=\"mailto:${address.address}\" class=\"mp_address_email\">${address.name}</a>`,
 				);
+		}
 	}
 	return html.join("; ");
 }

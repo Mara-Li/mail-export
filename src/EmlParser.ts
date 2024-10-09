@@ -163,8 +163,8 @@ export class EmlParser implements IEml {
 
 		let headerHtml = `${HEADER(this.parsedMail.subject ?? "Email", this.options?.customStyle)}${from(fromAddress)}${dateHeader}`;
 		if (!exclude?.to) {
-			const toAdress = this.createAddress(this.parsedMail.to);
-			const htmlTo = htmlAddress(toAdress, this.options?.formatEmailAddress);
+			const toAddress = this.createAddress(this.parsedMail.to);
+			const htmlTo = htmlAddress(toAddress, this.options?.formatEmailAddress);
 			headerHtml += to(htmlTo);
 		}
 		if (!exclude?.cc) {
