@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.1.0](https://github.com/Mara-Li/mail-export/compare/v2.0.4...v2.1.0) (2024-10-09)
+
+
+### Features
+
+* support formatting email adress ([c7547be](https://github.com/Mara-Li/mail-export/commit/c7547bed03d74a374cb69d65e27a35a3d2a3c917))
+
 ## [2.0.4](https://github.com/Mara-Li/Archivette/compare/v2.0.3...v2.0.4) (2024-09-24)
 
 ## [2.0.3](https://github.com/Mara-Li/Archivette/compare/v2.0.2...v2.0.3) (2024-09-24)
