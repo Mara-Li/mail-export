@@ -61,9 +61,11 @@ It will successfully download the attachments to the current directory.
 - **`highlightKeywords`** (optional, `string[]`)
   - **Description**: Highlights specific keywords in the email HTML content using the `<mark></mark>` HTML tag.
   - **Example**: If you provide `['foo', 'bar']`, the keywords `foo` and `bar` will be highlighted in the email HTML content.
-
 - **`highlightCaseSensitive`** (optional, `boolean`)
   - **Description**: Specifies whether the keyword highlighting is case-sensitive.
+- **`formatEmailAddress`** (optional, `string`)
+  - **Description**: Formats the email addresses in the HTML output; use `{{name}}` for the user name and `{{address}}` for the email address.
+  - **Example**: `{{name}} <{{address}}>` will format the email address as `John Doe <john.doe@mail.com>`.
 
 #### EmlOptions
 Includes all from `ParseOptions` and adds the following:
@@ -224,9 +226,7 @@ The `EmlParser` and `MessageParser` implements the interface `Parser`.
 
 > [!NOTE]
 > `ParseOptions` referee to `EmlOptions` for `EmlParser` and `MessageOptions` for `MessageParser`.
-> ```ts
-> type ParseOptions = EmlOptions | MessageOptions;
-> ```
+> The two options extends `ParseOptions` and add specific options for each type of file.
 
 - **`init(fileReadStream?: Readable, options?: ParseOptions): Promise<EmlParser | MessageParser>`**
   - **Description**: The primary function for parsing the email file. Converts the readable stream into a parsed email, allowing for content and header extraction.
@@ -271,8 +271,23 @@ Default options:
 ```json5
 {
   format: "A4",
+  width: "21cm",
+  height: "29.7cm",
+  margin: {
+    top: "1.30cm",
+    left: "1.30cm",
+    right: "1.30cm",
+    bottom: "1.30cm",
+  },
+  printBackground: true,
+  preferCSSPageSize: true,
   headless: true,
-  args: ["--no-sandbox", "--disable-setuid-sandbox", "--disabled-setupid-sandbox"]
+  args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disabled-setupid-sandbox",
+    "--font-render-hinting=none",
+  ],
 }
 ```
 

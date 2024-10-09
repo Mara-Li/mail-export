@@ -12,6 +12,11 @@ interface ParseOptions {
 	 * Allow to modify the style in the resulting html
 	 */
 	customStyle?: string;
+	/**
+	 * Set a custom style for the emails adresses. Use {{name}} to insert the name and {{email}} to insert the email.
+	 * @example `<a href="mailto:{{email}}" class="mp_address_email">{{name}} <{{email}}> </a>`
+	 * */
+	formatEmailAddress?: string;
 }
 
 export interface EmlOptions extends ParseOptions {

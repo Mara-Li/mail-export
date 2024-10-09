@@ -95,14 +95,20 @@ export function HEADER(title?: string, customStyle?: string) {
 	return header;
 }
 
-export function htmlAddress(addresses?: MailAddress[]) {
+export function htmlAddress(addresses?: MailAddress[], emailStyle?: string) {
 	if (!addresses) return "";
 	const html: string[] = [];
 	for (const address of addresses) {
 		if (address.name && address.address)
-			html.push(
-				`<a href=\"mailto:${address.address}\" class=\"mp_address_email\">${address.name}</a>`,
-			);
+			if (emailStyle) {
+				emailStyle
+					.replace("{{name}}", address.name)
+					.replace("{{email}}", address.address);
+				html.push(emailStyle);
+			} else
+				html.push(
+					`<a href=\"mailto:${address.address}\" class=\"mp_address_email\">${address.name}</a>`,
+				);
 	}
 	return html.join("; ");
 }

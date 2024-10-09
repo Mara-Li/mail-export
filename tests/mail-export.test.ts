@@ -7,8 +7,10 @@ const inputs = path.normalize("tests/inputs");
 const output = path.normalize("tests/outputs");
 
 describe("EML testing", async () => {
-	const file = fs.createReadStream(path.join(inputs, "EML", "test_SA.eml"));
-	const emlParser = await EmlParser.init(file);
+	const file = fs.createReadStream(path.join(inputs, "EML", "test_SA_2.eml"));
+	const emlParser = await EmlParser.init(file, {
+		formatEmailAddress: '<a href="mailto:{{email}}">{{email}}</a>',
+	});
 	test("EML to HTML", async () => {
 		const html = await emlParser.getAsHtml({
 			excludeHeader: { embeddedAttachments: true },
@@ -25,7 +27,7 @@ describe("EML testing", async () => {
 			excludeHeader: { embeddedAttachments: true },
 		});
 		if (!html) throw "unexpected error";
-		fs.writeFileSync("new.html", html);
+		fs.writeFileSync(path.join(output, "html-eml.html"), html);
 		const converted = new Convert(html);
 		const buffer = await converted.convertToBuffer();
 		expect(buffer).toBeDefined();
@@ -34,7 +36,7 @@ describe("EML testing", async () => {
 		const html = await emlParser.getAsHtml();
 		if (!html) throw "unexpected error";
 		const converted = new Convert(html);
-		expect(await converted.createPdf(path.join(output, "sample.pdf"))).pass;
+		expect(await converted.createPdf(path.join(output, "sample-eml.pdf"))).pass;
 	});
 });
 
@@ -49,7 +51,7 @@ describe("MSG testing", () => {
 		const emlParser = await EmlParser.init(file);
 		const html = await emlParser.getAsHtml();
 		if (!html) throw "unexpected error";
-		fs.writeFileSync("new.html", html);
+		fs.writeFileSync(path.join(output, "html-msg.html"), html);
 		const converted = new Convert(html);
 		const buffer = await converted.convertToBuffer();
 		expect(buffer).toBeDefined();
@@ -59,6 +61,6 @@ describe("MSG testing", () => {
 		const html = await emlParser.getAsHtml();
 		if (!html) throw "unexpected error";
 		const converted = new Convert(html);
-		expect(await converted.createPdf(path.join(output, "sample.pdf"))).pass;
+		expect(await converted.createPdf(path.join(output, "sample-msg.pdf"))).pass;
 	});
 });

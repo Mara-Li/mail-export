@@ -154,24 +154,27 @@ export class EmlParser implements IEml {
 			? new Date(this.parsedMail.date)
 			: new Date();
 		const fromAddress = !exclude?.from
-			? htmlAddress(this.createAddress(this.parsedMail.from))
+			? htmlAddress(
+					this.createAddress(this.parsedMail.from),
+					this.options?.formatEmailAddress,
+				)
 			: undefined;
 		const dateHeader = !exclude?.date ? date(dateMail) : undefined;
 
 		let headerHtml = `${HEADER(this.parsedMail.subject ?? "Email", this.options?.customStyle)}${from(fromAddress)}${dateHeader}`;
 		if (!exclude?.to) {
 			const toAdress = this.createAddress(this.parsedMail.to);
-			const htmlTo = htmlAddress(toAdress);
+			const htmlTo = htmlAddress(toAdress, this.options?.formatEmailAddress);
 			headerHtml += to(htmlTo);
 		}
 		if (!exclude?.cc) {
 			const ccAddress = this.createAddress(this.parsedMail.cc);
-			const htmlCc = htmlAddress(ccAddress);
+			const htmlCc = htmlAddress(ccAddress, this.options?.formatEmailAddress);
 			headerHtml += cc(htmlCc);
 		}
 		if (!exclude?.bcc) {
 			const bccAddress = this.createAddress(this.parsedMail.bcc);
-			const htmlBcc = htmlAddress(bccAddress);
+			const htmlBcc = htmlAddress(bccAddress, this.options?.formatEmailAddress);
 			headerHtml += bcc(htmlBcc);
 		}
 		if (!exclude?.attachments) {
@@ -210,7 +213,10 @@ export class EmlParser implements IEml {
 		}
 		if (this.parsedMail.replyTo && !exclude?.replyTo) {
 			const replyToAddress = this.createAddress(this.parsedMail.replyTo);
-			const htmlReplyTo = htmlAddress(replyToAddress);
+			const htmlReplyTo = htmlAddress(
+				replyToAddress,
+				this.options?.formatEmailAddress,
+			);
 			headerHtml += to(htmlReplyTo);
 		}
 		if (!exclude?.subject) headerHtml += subject(this.parsedMail.subject);

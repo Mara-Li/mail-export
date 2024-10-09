@@ -5,7 +5,11 @@ import * as iconv from "iconv-lite";
 import { JSDOM } from "jsdom";
 import * as rtfParser from "rtf-stream-parser";
 import type { IMsg } from "./types/Parser.js";
-import type { Header, MessageFieldData } from "./types/interface.js";
+import type {
+	Header,
+	MailAddress,
+	MessageFieldData,
+} from "./types/interface.js";
 import type { MessageOptions } from "./types/options.js";
 import {
 	END,
@@ -129,8 +133,15 @@ export class MessageParser implements IMsg {
 		if (options) this.options = options;
 		const exclude = this.options?.excludeHeader;
 
+		const fromRecipients: MailAddress[] = [
+			{
+				name: this.parsedMail.senderEmail ?? this.parsedMail.senderName,
+				address: this.parsedMail.senderEmail ?? this.parsedMail.senderName,
+			},
+		];
+
 		const fromSpan = !exclude?.from
-			? `<a href=\"mailto:${this.parsedMail.senderEmail ?? this.parsedMail.lastModifierName}\" class=\"mp_address_email\">${this.parsedMail.senderEmail ?? this.parsedMail.lastModifierName}</a></span>`
+			? htmlAddress(fromRecipients, this.options?.formatEmailAddress)
 			: undefined;
 		const dateSpan =
 			this.parsedMail.messageDeliveryTime && !exclude?.date
@@ -144,7 +155,10 @@ export class MessageParser implements IMsg {
 				.map((recipient) => {
 					return { name: recipient.name, address: recipient.email };
 				});
-			const toHtml = htmlAddress(toRecipients);
+			const toHtml = htmlAddress(
+				toRecipients,
+				this.options?.formatEmailAddress,
+			);
 			headerHtml += to(toHtml);
 		}
 		if (!exclude?.cc) {
@@ -153,7 +167,10 @@ export class MessageParser implements IMsg {
 				.map((recipient) => {
 					return { name: recipient.name, address: recipient.email };
 				});
-			const ccHtml = htmlAddress(ccRecipients);
+			const ccHtml = htmlAddress(
+				ccRecipients,
+				this.options?.formatEmailAddress,
+			);
 			headerHtml += cc(ccHtml);
 		}
 		if (!exclude?.bcc) {
@@ -162,7 +179,10 @@ export class MessageParser implements IMsg {
 				.map((recipient) => {
 					return { name: recipient.name, address: recipient.email };
 				});
-			const bccHtml = htmlAddress(bccRecipients);
+			const bccHtml = htmlAddress(
+				bccRecipients,
+				this.options?.formatEmailAddress,
+			);
 			headerHtml += bcc(bccHtml);
 		}
 

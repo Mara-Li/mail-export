@@ -37,6 +37,16 @@ export class Convert {
 	): PuppeteerHTMLPDFOptions {
 		const DEFAULT_OPTIONS: PuppeteerHTMLPDFOptions = {
 			format: "A4",
+			width: "21cm",
+			height: "29.7cm",
+			margin: {
+				top: "1.30cm",
+				left: "1.30cm",
+				right: "1.30cm",
+				bottom: "1.30cm",
+			},
+			printBackground: true,
+			preferCSSPageSize: true,
 			headless: true,
 			args: [
 				"--no-sandbox",
