@@ -103,8 +103,8 @@ export function htmlAddress(addresses?: MailAddress[], emailStyle?: string) {
 			if (emailStyle) {
 				html.push(
 					emailStyle
-						.replace("{{name}}", address.name)
-						.replace("{{email}}", address.address),
+						.replaceAll("{{name}}", address.name)
+						.replaceAll("{{email}}", address.address),
 				);
 			} else
 				html.push(

@@ -99,7 +99,7 @@ export class Convert {
 	/**
 	 * Create a pdf file from the html string
 	 * @param {string} path  - Path to save the pdf file
-	 * @param {PuppeteerHTMLPDFOptions} opt - Options to modify the pdf creation
+	 * @param {PuppeteerHTMLPDFOptions|undefined} opt - Options to modify the pdf creation
 	 * @returns {string} - Path of the pdf created file
 	 */
 	async createPdf(path: string, opt?: PuppeteerHTMLPDFOptions): Promise<void> {
