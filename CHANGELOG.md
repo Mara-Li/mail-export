@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.2.0](https://github.com/Mara-Li/mail-export/compare/v2.1.2...v2.2.0) (2024-11-29)
+
+
+### Features
+
+* allow better configuration for date ([4f9f27d](https://github.com/Mara-Li/mail-export/commit/4f9f27de67d6331a1e104f92282095caa4f65460))
+
 ## [2.1.2](https://github.com/Mara-Li/mail-export/compare/v2.1.1...v2.1.2) (2024-10-10)
 
 
