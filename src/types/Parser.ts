@@ -11,7 +11,7 @@ interface Parser {
 	options?: ParseOptions;
 
 	/**
-	 * Parse the HEADER of the mail, including attachments
+	 * Parse the defaultHtmlHead of the mail, including attachments
 	 * @returns {Header} - Header of the mail
 	 */
 
@@ -22,7 +22,7 @@ interface Parser {
 	getAttachments(): MessageFieldData[] | Attachment[];
 
 	/**
-	 * Only return the body of the mail, without formatting the HEADER fields
+	 * Only return the body of the mail, without formatting the defaultHtmlHead fields
 	 * @returns {string} - The body of the mail as a html string
 	 */
 	getBodyHtml(): string | undefined;
@@ -35,7 +35,7 @@ export interface IEml extends Parser {
 	 */
 	getEmbedded(): Attachment[];
 	/**
-	 * Return the content of the mail as a html string, including HEADER and attachments as field in the html
+	 * Return the content of the mail as a html string, including defaultHtmlHead and attachments as field in the html
 	 * Attachment can be download if the html is directly written in a file
 	 * @param {ParseOptions} options  - Options to modify the parsing behavior
 	 * @returns {Promise<string|undefined>} - The mail as a html string
@@ -45,7 +45,7 @@ export interface IEml extends Parser {
 
 export interface IMsg extends Parser {
 	/**
-	 * Return the content of the mail as a html string, including HEADER and attachments as field in the html
+	 * Return the content of the mail as a html string, including defaultHtmlHead and attachments as field in the html
 	 * Attachment can be download if the html is directly written in a file
 	 * @param {ParseOptions} options  - Options to modify the parsing behavior
 	 * @returns {string} - The mail as a html string

@@ -1,11 +1,10 @@
 import { formatInTimeZone } from "date-fns-tz";
 import { enUS } from "date-fns/locale";
 import dedent from "dedent";
-import type { FormatText } from "./types/Format.js";
 import type { MailAddress } from "./types/interface.js";
 import type { DateFormat } from "./types/options.js";
 
-export class Format implements FormatText {
+export class Format {
 	END = "</table><br>";
 	dateFormat: DateFormat = {
 		format: "EEEE d MMMM yyyy HH:mm",
@@ -16,26 +15,53 @@ export class Format implements FormatText {
 		if (dateFormat) this.dateFormat = dateFormat;
 	}
 
+	/**
+	 * Format the "cc" field in the table
+	 * @param {string} cc - The "cc" field of the email
+	 */
 	cc(cc: string) {
 		return `<tr><td class="label">Cc:</td><td>${cc}</td></tr>`;
 	}
-	bcc(cci: string) {
-		return `<tr><td class="label">Bcc:</td><td>${cci}</td></tr>`;
+
+	/**
+	 * Format the "bcc" field in the table
+	 * @param {string} bcc - The "bcc" field of the email
+	 */
+	bcc(bcc: string) {
+		return `<tr><td class="label">Bcc:</td><td>${bcc}</td></tr>`;
 	}
+
+	/**
+	 * Format the "to" field in the table
+	 * @param {string} to - The "to" field of the email
+	 */
 	to(to: string) {
 		return `<tr><td class="label">To:</td><td>${to}</td></tr>`;
 	}
+
+	/**
+	 * Format the "subject" field in the table
+	 * @param {string} subject - The "subject" field of the email
+	 */
 	subject(subject?: string) {
 		if (!subject) return "";
 		return `<tr><td class="label">Subject:</td><td>${subject}</td></tr>`;
 	}
 
+	/**
+	 * Format the "attachments" field in the table
+	 * @param attachments - The "attachments" field of the email
+	 */
 	attachments(attachments?: string) {
 		if (!attachments)
 			return '<tr><td class="label">Attachments:</td><td>/</td></tr>';
 		return `<tr><td class="label">Attachments:</td><td>${attachments}</td></tr>`;
 	}
 
+	/**
+	 * Format the "from" field in the table
+	 * @param {string} from
+	 */
 	from(from?: string) {
 		if (!from) return `<table class="email-info">`;
 		return `<div class="header">${from}</div><div class="underline"></div><table class="email-info">`;
@@ -46,6 +72,10 @@ export class Format implements FormatText {
 		return formatInTimeZone(date, timeZone, fmt, { locale });
 	}
 
+	/**
+	 * Format the "date" field in the table with the given format
+	 * @param {Date|string} date - The "date" field of the email
+	 */
 	date(date: Date | string) {
 		if (typeof date === "string") {
 			if (date.trim().length === 0) {
@@ -57,7 +87,13 @@ export class Format implements FormatText {
 		}
 		return `<tr><td class="label">Sent:</td><td>${this.formatDate(date)}</td></tr>`;
 	}
-	HEADER(title?: string, customStyle?: string) {
+
+	/**
+	 * Default CSS for the email and title
+	 * @param {string|undefined} title - the "object" field of the email
+	 * @param {string|undefined} customStyle - custom CSS for the email
+	 */
+	defaultHtmlHead(title?: string, customStyle?: string) {
 		let header = dedent(`
 	<head>
 		<title>${title}</title>
@@ -103,6 +139,14 @@ export class Format implements FormatText {
 	</head>`);
 		return header;
 	}
+
+	/**
+	 * Format the given address in a format with "mailto" and the class "mp_address_email" (default)
+	 * @param {MailAddress[] | undefined} addresses
+	 * @param {string} emailStyle - custom style for the email. Needs to use {{name}} and {{email}} as template to
+	 * create custom format.
+	 * The mail will be joined with "; " as separator
+	 */
 	htmlAddress(addresses?: MailAddress[], emailStyle?: string) {
 		if (!addresses) return "";
 		const html: string[] = [];

@@ -151,7 +151,7 @@ export class EmlParser implements IEml {
 			: undefined;
 		const dateHeader = !exclude?.date ? this.format.date(dateMail) : undefined;
 
-		let headerHtml = `${this.format.HEADER(this.parsedMail.subject ?? "Email", this.options?.customStyle)}${this.format.from(fromAddress)}${dateHeader}`;
+		let headerHtml = `${this.format.defaultHtmlHead(this.parsedMail.subject ?? "Email", this.options?.customStyle)}${this.format.from(fromAddress)}${dateHeader}`;
 		if (!exclude?.to) {
 			const toAddress = this.createAddress(this.parsedMail.to);
 			const htmlTo = this.format.htmlAddress(

@@ -141,7 +141,7 @@ export class MessageParser implements IMsg {
 			this.parsedMail.messageDeliveryTime && !exclude?.date
 				? new Date(this.parsedMail.messageDeliveryTime)
 				: new Date();
-		let headerHtml = `${this.format.HEADER(this.parsedMail.subject ?? "Email", this.options?.customStyle)}${this.format.from(fromSpan)}${this.format.date(dateSpan)}`;
+		let headerHtml = `${this.format.defaultHtmlHead(this.parsedMail.subject ?? "Email", this.options?.customStyle)}${this.format.from(fromSpan)}${this.format.date(dateSpan)}`;
 
 		if (!exclude?.to) {
 			const toRecipients = this.parsedMail.recipients

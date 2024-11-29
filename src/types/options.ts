@@ -43,21 +43,21 @@ export interface EmlOptions extends ParseOptions {
 	 */
 	ignoreEmbedded?: boolean;
 	/**
-	 * Allow to modify the HEADER of the result pdf/html
+	 * Allow to modify the defaultHtmlHead of the result pdf/html
 	 */
 	excludeHeader?: Partial<ExcludeHeaderEml>;
 }
 
 export interface MessageOptions extends ParseOptions {
 	/**
-	 * Allow to modify the HEADER of the result pdf/html
+	 * Allow to modify the defaultHtmlHead of the result pdf/html
 	 */
 	excludeHeader?: Partial<ExcludeHeader>;
 }
 
 /**
- * Allow to exclude some HEADER from the html output
- * See {Header} for the list of HEADER
+ * Allow to exclude some defaultHtmlHead from the html output
+ * See {Header} for the list of defaultHtmlHead
  */
 type ExcludeHeader = {
 	bcc: boolean;
