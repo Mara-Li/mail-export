@@ -1,3 +1,5 @@
+import type { Locale } from "date-fns";
+
 interface ParseOptions {
 	/**
 	 * highlight with <mark></mark> html a specific keyword in the email html content
@@ -17,7 +19,23 @@ interface ParseOptions {
 	 * @example `<a href="mailto:{{email}}" class="mp_address_email">{{name}} <{{email}}> </a>`
 	 * */
 	formatEmailAddress?: string;
+	/**
+	 * Allow changing the date format in the resulting html:
+	 * - format: the format of the date (see https://date-fns.org/v2.21.3/docs/format)
+	 * - locale: the locale of the date (see https://date-fns.org/v2.21.3/docs/I18n)
+	 * - timeZone: the timezone of the date (see https://date-fns.org/v2.21.3/docs/Time-Zones)
+	 * The date-fns and date-fns-tz libraries are used to format the date and should be used as a Locale!
+	 * @example French date in `dd MMMM yy - HH:mm` format in Europe/Paris timezone:
+	 * { format: "dd MMMM yy - HH:mm", locale: fr, timeZone: "Europe/Paris" }
+	 */
+	dateFormat?: DateFormat;
 }
+
+export type DateFormat = {
+	format: string;
+	locale: Locale;
+	timeZone: string;
+};
 
 export interface EmlOptions extends ParseOptions {
 	/**

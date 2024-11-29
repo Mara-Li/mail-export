@@ -4,6 +4,7 @@ import MsgReader, { type FieldsData } from "@kenjiuno/msgreader";
 import * as iconv from "iconv-lite";
 import { JSDOM } from "jsdom";
 import * as rtfParser from "rtf-stream-parser";
+import { Format } from "./format.js";
 import type { IMsg } from "./types/Parser.js";
 import type {
 	Header,
@@ -11,27 +12,17 @@ import type {
 	MessageFieldData,
 } from "./types/interface.js";
 import type { MessageOptions } from "./types/options.js";
-import {
-	END,
-	HEADER,
-	attachments,
-	bcc,
-	cc,
-	date,
-	from,
-	htmlAddress,
-	stream2Buffer,
-	subject,
-	to,
-} from "./utils.js";
+import { stream2Buffer } from "./utils.js";
 
 export class MessageParser implements IMsg {
 	fileReadStream: Readable;
 	parsedMail!: MessageFieldData;
 	options?: MessageOptions;
+	format: Format;
 	private constructor(fileReadStream: Readable, options?: MessageOptions) {
 		this.fileReadStream = fileReadStream;
 		this.options = options;
+		this.format = new Format(options?.dateFormat);
 	}
 
 	/**
@@ -141,13 +132,16 @@ export class MessageParser implements IMsg {
 		];
 
 		const fromSpan = !exclude?.from
-			? htmlAddress(fromRecipients, this.options?.formatEmailAddress)
+			? this.format.htmlAddress(
+					fromRecipients,
+					this.options?.formatEmailAddress,
+				)
 			: undefined;
 		const dateSpan =
 			this.parsedMail.messageDeliveryTime && !exclude?.date
 				? new Date(this.parsedMail.messageDeliveryTime)
 				: new Date();
-		let headerHtml = `${HEADER(this.parsedMail.subject ?? "Email", this.options?.customStyle)}${from(fromSpan)}${date(dateSpan)}`;
+		let headerHtml = `${this.format.HEADER(this.parsedMail.subject ?? "Email", this.options?.customStyle)}${this.format.from(fromSpan)}${this.format.date(dateSpan)}`;
 
 		if (!exclude?.to) {
 			const toRecipients = this.parsedMail.recipients
@@ -155,11 +149,11 @@ export class MessageParser implements IMsg {
 				.map((recipient) => {
 					return { name: recipient.name, address: recipient.email };
 				});
-			const toHtml = htmlAddress(
+			const toHtml = this.format.htmlAddress(
 				toRecipients,
 				this.options?.formatEmailAddress,
 			);
-			headerHtml += to(toHtml);
+			headerHtml += this.format.to(toHtml);
 		}
 		if (!exclude?.cc) {
 			const ccRecipients = this.parsedMail.recipients
@@ -167,11 +161,11 @@ export class MessageParser implements IMsg {
 				.map((recipient) => {
 					return { name: recipient.name, address: recipient.email };
 				});
-			const ccHtml = htmlAddress(
+			const ccHtml = this.format.htmlAddress(
 				ccRecipients,
 				this.options?.formatEmailAddress,
 			);
-			headerHtml += cc(ccHtml);
+			headerHtml += this.format.cc(ccHtml);
 		}
 		if (!exclude?.bcc) {
 			const bccRecipients = this.parsedMail.recipients
@@ -179,11 +173,11 @@ export class MessageParser implements IMsg {
 				.map((recipient) => {
 					return { name: recipient.name, address: recipient.email };
 				});
-			const bccHtml = htmlAddress(
+			const bccHtml = this.format.htmlAddress(
 				bccRecipients,
 				this.options?.formatEmailAddress,
 			);
-			headerHtml += bcc(bccHtml);
+			headerHtml += this.format.bcc(bccHtml);
 		}
 
 		if (!exclude?.attachments) {
@@ -200,10 +194,11 @@ export class MessageParser implements IMsg {
 						})
 						.join("<br>")
 				: undefined;
-			headerHtml += attachments(attachmentsHtml);
+			headerHtml += this.format.attachments(attachmentsHtml);
 		}
-		if (!exclude?.subject) headerHtml += subject(this.parsedMail.subject);
-		headerHtml += `${END}<p>${this.parsedMail?.htmlString ?? ""}</p>`;
+		if (!exclude?.subject)
+			headerHtml += this.format.subject(this.parsedMail.subject);
+		headerHtml += `${this.format.END}<p>${this.parsedMail?.htmlString ?? ""}</p>`;
 		return headerHtml;
 	}
 	getAttachments() {

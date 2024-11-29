@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
-import { Convert } from "../src";
-import { EmlParser } from "../src";
+import { Convert } from "../dist/Converter.js";
+import { EmlParser } from "../dist/EmlParser.js";
 const inputs = path.normalize("tests/inputs/EML");
 const output = path.normalize("tests/outputs/EML");
-const input = "momo";
+const input = "Sample with attachments pdf";
 
 const file = fs.createReadStream(path.join(inputs, `${input}.eml`));
 const emlParser = await EmlParser.init(file, {
@@ -37,6 +37,9 @@ test("Output pdf", async () => {
 	const html = await emlParser.getAsHtml();
 	if (!html) throw "unexpected error";
 	const converted = new Convert(html);
-	expect(await converted.createPdf(path.join(output, "pdf", `${input}.pdf`)))
-		.pass;
+	expect(
+		converted.createPdf(path.join(output, "pdf", `${input}.pdf`), {
+			headless: true,
+		}),
+	).pass;
 });

@@ -7,30 +7,21 @@ import {
 	simpleParser,
 } from "mailparser";
 import { extension } from "mime-types";
+import { Format } from "./format.js";
 import type { IEml } from "./types/Parser.js";
 import type { Header, MailAddress } from "./types/interface.js";
 import type { EmlOptions } from "./types/options.js";
-import {
-	END,
-	HEADER,
-	attachments,
-	bcc,
-	cc,
-	date,
-	from,
-	htmlAddress,
-	subject,
-	to,
-} from "./utils.js";
 
 export class EmlParser implements IEml {
 	fileReadStream: Readable;
 	options?: EmlOptions;
 	parsedMail!: ParsedMail;
+	format: Format;
 
 	private constructor(fileReadStream: Readable, options?: EmlOptions) {
 		this.fileReadStream = fileReadStream;
 		this.options = options;
+		this.format = new Format(options?.dateFormat);
 	}
 
 	/**
@@ -58,13 +49,11 @@ export class EmlParser implements IEml {
 				const domParser = new JSDOM(result.html);
 				//remove all <style>
 				const styles = domParser.window.document.querySelectorAll("style");
-				// biome-ignore lint/complexity/noForEach: <explanation>
 				styles.forEach((style) => style.remove());
 				result.html = domParser.window.document.body.innerHTML;
 			} else if (result.textAsHtml) {
 				const domParser = new JSDOM(result.textAsHtml).window.document;
 				const styles = domParser.querySelectorAll("style");
-				// biome-ignore lint/complexity/noForEach: <explanation>
 				styles.forEach((style) => style.remove());
 				result.textAsHtml = domParser.body.innerHTML;
 			}
@@ -102,18 +91,19 @@ export class EmlParser implements IEml {
 	): MailAddress[] {
 		if (!address) return [];
 		const result = Array.isArray(address) ? address : [address];
-		const mails: MailAddress[] = [];
+		const mails: Set<MailAddress> = new Set();
 		for (const addressObject of result) {
 			if (addressObject.value) {
 				for (const email of addressObject.value) {
-					mails.push({
+					if (mails.has(email)) continue;
+					mails.add({
 						name: email.name,
 						address: email.address,
 					});
 				}
 			}
 		}
-		return mails;
+		return Array.from(mails);
 	}
 
 	getHeader(): Header | undefined {
@@ -154,28 +144,37 @@ export class EmlParser implements IEml {
 			? new Date(this.parsedMail.date)
 			: new Date();
 		const fromAddress = !exclude?.from
-			? htmlAddress(
+			? this.format.htmlAddress(
 					this.createAddress(this.parsedMail.from),
 					this.options?.formatEmailAddress,
 				)
 			: undefined;
-		const dateHeader = !exclude?.date ? date(dateMail) : undefined;
+		const dateHeader = !exclude?.date ? this.format.date(dateMail) : undefined;
 
-		let headerHtml = `${HEADER(this.parsedMail.subject ?? "Email", this.options?.customStyle)}${from(fromAddress)}${dateHeader}`;
+		let headerHtml = `${this.format.HEADER(this.parsedMail.subject ?? "Email", this.options?.customStyle)}${this.format.from(fromAddress)}${dateHeader}`;
 		if (!exclude?.to) {
 			const toAddress = this.createAddress(this.parsedMail.to);
-			const htmlTo = htmlAddress(toAddress, this.options?.formatEmailAddress);
-			headerHtml += to(htmlTo);
+			const htmlTo = this.format.htmlAddress(
+				toAddress,
+				this.options?.formatEmailAddress,
+			);
+			headerHtml += this.format.to(htmlTo);
 		}
 		if (!exclude?.cc) {
 			const ccAddress = this.createAddress(this.parsedMail.cc);
-			const htmlCc = htmlAddress(ccAddress, this.options?.formatEmailAddress);
-			headerHtml += cc(htmlCc);
+			const htmlCc = this.format.htmlAddress(
+				ccAddress,
+				this.options?.formatEmailAddress,
+			);
+			headerHtml += this.format.cc(htmlCc);
 		}
 		if (!exclude?.bcc) {
 			const bccAddress = this.createAddress(this.parsedMail.bcc);
-			const htmlBcc = htmlAddress(bccAddress, this.options?.formatEmailAddress);
-			headerHtml += bcc(htmlBcc);
+			const htmlBcc = this.format.htmlAddress(
+				bccAddress,
+				this.options?.formatEmailAddress,
+			);
+			headerHtml += this.format.bcc(htmlBcc);
 		}
 		if (!exclude?.attachments) {
 			const attachmentsFiles = exclude?.embeddedAttachments
@@ -209,19 +208,20 @@ export class EmlParser implements IEml {
 				}),
 			);
 			const attachmentsHtml = mappedAttachments.join("<br>");
-			headerHtml += attachments(attachmentsHtml);
+			headerHtml += this.format.attachments(attachmentsHtml);
 		}
 		if (this.parsedMail.replyTo && !exclude?.replyTo) {
 			const replyToAddress = this.createAddress(this.parsedMail.replyTo);
-			const htmlReplyTo = htmlAddress(
+			const htmlReplyTo = this.format.htmlAddress(
 				replyToAddress,
 				this.options?.formatEmailAddress,
 			);
-			headerHtml += to(htmlReplyTo);
+			headerHtml += this.format.to(htmlReplyTo);
 		}
-		if (!exclude?.subject) headerHtml += subject(this.parsedMail.subject);
+		if (!exclude?.subject)
+			headerHtml += this.format.subject(this.parsedMail.subject);
 		const bodyHtml = this.getBodyHtml();
-		if (bodyHtml) headerHtml += `${END}<p>${bodyHtml}</p>`;
+		if (bodyHtml) headerHtml += `${this.format.END}<p>${bodyHtml}</p>`;
 		return headerHtml;
 	}
 
