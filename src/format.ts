@@ -76,10 +76,12 @@ export class Format {
 	 * Format the "date" field in the table with the given format
 	 * @param {Date|string} date - The "date" field of the email
 	 */
-	date(date: Date | string) {
+	date(date?: Date | string) {
+		const empty = `<tr><td class="label">Sent:</td><td></td></tr>`;
+		if (!date) return empty;
 		if (typeof date === "string") {
 			if (date.trim().length === 0) {
-				return `<tr><td class="label">Sent:</td><td></td></tr>`;
+				return empty;
 			}
 			//convert date to Date
 			const dated = new Date(date);

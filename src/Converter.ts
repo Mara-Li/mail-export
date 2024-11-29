@@ -98,14 +98,8 @@ export class Convert {
 
 	/**
 	 * Create a pdf file from the html string
-	 * @param {string} path  - Path to save the pdf file
-	 * @param {PuppeteerHTMLPDFOptions|undefined} opt - Options to modify the pdf creation
-	 * @returns {string} - Path of the pdf created file
 	 */
-	async createPdf(
-		path: string,
-		opt: PuppeteerHTMLPDFOptions | undefined = undefined,
-	): Promise<void> {
+	async createPdf(path: string, opt?: PuppeteerHTMLPDFOptions): Promise<void> {
 		const option = this.createOption(opt);
 		option.path = path;
 		if (!this.html) throw new Error("No message found");

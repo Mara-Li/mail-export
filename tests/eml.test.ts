@@ -1,45 +1,66 @@
 import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
-import { Convert } from "../dist/Converter.js";
-import { EmlParser } from "../dist/EmlParser.js";
+import { fr } from "date-fns/locale";
+import { Convert, EmlParser } from "mail-export";
 const inputs = path.normalize("tests/inputs/EML");
 const output = path.normalize("tests/outputs/EML");
-const input = "Sample with attachments pdf";
+const input = "Sample";
 
 const file = fs.createReadStream(path.join(inputs, `${input}.eml`));
-const emlParser = await EmlParser.init(file, {
-	formatEmailAddress:
-		'<a href="mailto:{{email}}" class="mp_address_email">{{email}}</a>',
-});
-test("EML to HTML", async () => {
-	const html = await emlParser.getAsHtml({
-		excludeHeader: { embeddedAttachments: true },
+describe("EML to PDF", async () => {
+	const emlParser = await EmlParser.init(file, {
+		formatEmailAddress:
+			'<a href="mailto:{{email}}" class="mp_address_email">{{email}}</a>',
 	});
-	expect(html).toBeDefined();
-});
-test("List attachments", async () => {
-	const attachments = emlParser.getAttachments();
-	console.log(attachments.length);
-	expect(attachments).toBeDefined();
-});
-test("convert to Buffer", async () => {
-	const html = await emlParser.getAsHtml({
-		excludeHeader: { embeddedAttachments: true },
+	test("EML to HTML", async () => {
+		const html = await emlParser.getAsHtml({
+			excludeHeader: { embeddedAttachments: true },
+		});
+		expect(html).toBeDefined();
 	});
-	if (!html) throw "unexpected error";
-	fs.writeFileSync(path.join(output, "html", `${input}.html`), html);
-	const converted = new Convert(html);
-	const buffer = await converted.convertToBuffer();
-	expect(buffer).toBeDefined();
+	test("convert to Buffer", async () => {
+		const html = await emlParser.getAsHtml({
+			excludeHeader: { embeddedAttachments: true },
+		});
+		if (!html) throw "unexpected error";
+		fs.writeFileSync(path.join(output, "html", `${input}.html`), html);
+		const converted = new Convert(html);
+		const buffer = await converted.convertToBuffer();
+		expect(buffer).toBeDefined();
+	});
+	test("Output pdf", async () => {
+		const html = await emlParser.getAsHtml();
+		if (!html) throw "unexpected error";
+		const converted = new Convert(html);
+		expect(await converted.createPdf(path.join(output, "pdf", `${input}.pdf`)))
+			.pass;
+	});
 });
-test("Output pdf", async () => {
-	const html = await emlParser.getAsHtml();
-	if (!html) throw "unexpected error";
-	const converted = new Convert(html);
-	expect(
-		converted.createPdf(path.join(output, "pdf", `${input}.pdf`), {
-			headless: true,
-		}),
-	).pass;
+
+describe("header and attachments", async () => {
+	const emlParser = await EmlParser.init(file);
+	test("List attachments", async () => {
+		const attachments = emlParser.getAttachments();
+		console.log(attachments.length);
+		expect(attachments).toBeDefined();
+	});
+});
+
+describe("format", async () => {
+	const emlForDate = await EmlParser.init(file, {
+		dateFormat: {
+			locale: fr,
+			timeZone: "Europe/Paris",
+			format: "dd/MM/yyyy HH:mm",
+		},
+	});
+
+	test("date", async () => {
+		const date = "2024-11-29T10:32:12.671Z";
+		const formatted = emlForDate.format.date(date);
+		const expected =
+			'<tr><td class="label">Sent:</td><td>29/11/2024 11:32</td></tr>';
+		expect(formatted).toBe(expected);
+	});
 });
