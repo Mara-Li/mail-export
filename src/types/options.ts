@@ -27,13 +27,23 @@ interface ParseOptions {
 	 * The date-fns and date-fns-tz libraries are used to format the date and should be used as a Locale!
 	 * @example French date in `dd MMMM yy - HH:mm` format in Europe/Paris timezone:
 	 * { format: "dd MMMM yy - HH:mm", locale: fr, timeZone: "Europe/Paris" }
+	 * @defaultValue { format: "EEEE d MMMM yyyy HH:mm", locale: enUS, timeZone: "UTC" }
 	 */
-	dateFormat?: DateFormat;
+	dateFormat?: Partial<DateFormat>;
 }
 
 export type DateFormat = {
+	/**
+	 * @defaultValue "EEEE d MMMM yyyy HH:mm"
+	 */
 	format: string;
+	/**
+	 * @defaultValue enUS
+	 */
 	locale: Locale;
+	/**
+	 * @defaultValue "UTC"
+	 */
 	timeZone: string;
 };
 

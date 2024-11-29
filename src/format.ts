@@ -3,6 +3,7 @@ import { enUS } from "date-fns/locale";
 import dedent from "dedent";
 import type { MailAddress } from "./types/interface.js";
 import type { DateFormat } from "./types/options.js";
+import "uniformize";
 
 export class Format {
 	END = "</table><br>";
@@ -11,8 +12,9 @@ export class Format {
 		locale: enUS,
 		timeZone: "UTC",
 	};
-	constructor(dateFormat?: DateFormat) {
-		if (dateFormat) this.dateFormat = dateFormat;
+	constructor(dateFormat?: Partial<DateFormat>) {
+		if (dateFormat)
+			this.dateFormat = Object.assign(this.dateFormat, dateFormat);
 	}
 
 	/**
@@ -69,7 +71,7 @@ export class Format {
 
 	private formatDate(date: Date) {
 		const { format: fmt, locale, timeZone } = this.dateFormat;
-		return formatInTimeZone(date, timeZone, fmt, { locale });
+		return formatInTimeZone(date, timeZone, fmt, { locale }).toTitle();
 	}
 
 	/**

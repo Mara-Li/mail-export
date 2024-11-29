@@ -47,20 +47,64 @@ describe("header and attachments", async () => {
 	});
 });
 
-describe("format", async () => {
-	const emlForDate = await EmlParser.init(file, {
-		dateFormat: {
-			locale: fr,
-			timeZone: "Europe/Paris",
-			format: "dd/MM/yyyy HH:mm",
-		},
-	});
-
-	test("date", async () => {
-		const date = "2024-11-29T10:32:12.671Z";
+describe("format date", async () => {
+	const date = "2024-11-29T10:32:12.671Z";
+	test("complete", async () => {
+		const emlForDate = await EmlParser.init(file, {
+			dateFormat: {
+				locale: fr,
+				timeZone: "Europe/Paris",
+				format: "dd/MM/yyyy HH:mm",
+			},
+		});
 		const formatted = emlForDate.format.date(date);
 		const expected =
 			'<tr><td class="label">Sent:</td><td>29/11/2024 11:32</td></tr>';
 		expect(formatted).toBe(expected);
+	});
+	describe("partial", async () => {
+		test("no timezone", async () => {
+			const emlForDate = await EmlParser.init(file, {
+				dateFormat: {
+					format: "dd/MM/yyyy HH:mm",
+					locale: fr,
+				},
+			});
+			const formatted = emlForDate.format.date(date);
+			const expected =
+				'<tr><td class="label">Sent:</td><td>29/11/2024 10:32</td></tr>';
+			expect(formatted).toBe(expected);
+		});
+		test("no locale", async () => {
+			const emlForDate = await EmlParser.init(file, {
+				dateFormat: {
+					format: "dd/MM/yyyy HH:mm",
+					timeZone: "Europe/Paris",
+				},
+			});
+			const formatted = emlForDate.format.date(date);
+			const expected =
+				'<tr><td class="label">Sent:</td><td>29/11/2024 11:32</td></tr>';
+			expect(formatted).toBe(expected);
+		});
+		test("no format", async () => {
+			const emlForDate = await EmlParser.init(file, {
+				dateFormat: {
+					locale: fr,
+					timeZone: "Europe/Paris",
+				},
+			});
+			const formatted = emlForDate.format.date(date);
+			const expected =
+				'<tr><td class="label">Sent:</td><td>Vendredi 29 novembre 2024 11:32</td></tr>';
+			expect(formatted).toBe(expected);
+		});
+		test("default", async () => {
+			const emlForDate = await EmlParser.init(file);
+			const formatted = emlForDate.format.date(date);
+			const expected =
+				'<tr><td class="label">Sent:</td><td>Friday 29 November 2024 10:32</td></tr>';
+			expect(formatted).toBe(expected);
+		});
 	});
 });
